@@ -26,8 +26,9 @@ def main():
         raise RuntimeError("Acceptance must run without -O: assertions are required")
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid4().hex[:8]
     run = ROOT / "build/stage6" / run_id
-    checkout = ROOT / "build/clean-checkouts" / run_id
-    environments = ROOT / "build/environments" / run_id
+    scratch = Path(os.environ.get("EAS_HMI_SCRATCH", str(ROOT.parent / "eas-hmi-local-artifacts")))
+    checkout = scratch / "clean-checkouts" / run_id
+    environments = scratch / "environments" / run_id
     run.mkdir(parents=True)
     checkout.mkdir(parents=True)
     source_hashes = {}
@@ -109,6 +110,7 @@ def main():
     execute("editable-help", [editable_cli, "--help"], cwd=run)
     required = (
         "init",
+        "status",
         "inspect",
         "query",
         "context",

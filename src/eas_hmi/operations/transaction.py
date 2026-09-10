@@ -117,33 +117,46 @@ class Store:
             chain.append(parent)
         return list(reversed(chain))
 
-    def _recover(self, current):
+    def _projection(self, transaction_id):
         marker = self.root / "history" / "revision.json"
         names = ("operations.jsonl", "events.jsonl")
         try:
             state = json.loads(marker.read_text(encoding="utf-8"))
-            if state.get("commit") == current["transaction_id"] and all(
-                digest((self.root / "history" / name).read_bytes()) == state["sha256"][name] for name in names
-            ):
-                return
+            if state.get("commit") == transaction_id:
+                payloads = {name: (self.root / "history" / name).read_bytes() for name in names}
+                if all(digest(payloads[name]) == state["sha256"][name] for name in names):
+                    return payloads
         except (OSError, ValueError, KeyError, TypeError):
-            pass  # Projection is absent/stale/corrupt. Recover from authoritative records.
-        chain = self._chain(current)
+            pass
+        return None
+
+    def _recover(self, current, previous=None):
+        payloads = self._projection(current["transaction_id"])
+        if payloads is not None:
+            return payloads
+        # Only the publishing caller supplies a previously validated parent.
+        # After a crash or on corruption, re-audit the authoritative chain.
+        payloads = self._projection(previous["transaction_id"]) if previous else None
+        chain = [current] if payloads is not None else self._chain(current)
+        base = payloads or {"operations.jsonl": b"", "events.jsonl": b""}
         payloads = {
-            "operations.jsonl": "".join(canonical_json(c["operation"]) + "\n" for c in chain),
-            "events.jsonl": "".join(canonical_json(e) + "\n" for c in chain for e in c["events"]),
+            "operations.jsonl": base["operations.jsonl"]
+            + "".join(canonical_json(c["operation"]) + "\n" for c in chain).encode("utf-8"),
+            "events.jsonl": base["events.jsonl"]
+            + "".join(canonical_json(e) + "\n" for c in chain for e in c["events"]).encode("utf-8"),
         }
         for name, data in payloads.items():
             atomic_write(self.root / "history" / name, data)
         atomic_write(
-            marker,
+            self.root / "history" / "revision.json",
             canonical_json(
                 {
                     "commit": current["transaction_id"],
-                    "sha256": {name: digest(data.encode("utf-8")) for name, data in payloads.items()},
+                    "sha256": {name: digest(data) for name, data in payloads.items()},
                 }
             ),
         )
+        return payloads
 
     def load(self):
         with self.lock():
@@ -242,7 +255,7 @@ class Store:
         )
         warnings = []
         try:
-            self._recover(commit)
+            self._recover(commit, previous=current)
         except OSError as exc:
             warnings.append(f"Committed; history projection will recover on next open: {exc}")
         return {
@@ -254,17 +267,47 @@ class Store:
             "warnings": warnings,
         }
 
-    def history(self):
+    def history(self, limit=None, revision=None, audit=False):
+        """Read checked operations, decoding only the requested records.
+
+        Projection checksum I/O remains proportional to audit bytes, not model
+        snapshots. Full history output necessarily grows with the result size.
+        """
         with self.lock():
             current = self._read_head()
-            self._recover(current)
-            return [c["operation"] for c in self._chain(current)]
+            if audit:
+                self._chain(current)
+            payloads = self._recover(current)
+            lines = payloads["operations.jsonl"].splitlines()
+            if revision is not None:
+                lines = lines[revision : revision + 1] if revision >= 0 else []
+            elif limit is not None:
+                if limit < 1:
+                    raise ValueError("History limit must be positive")
+                lines = lines[-limit:]
+            return [json.loads(line) for line in lines]
 
     def events_since(self, revision):
         with self.lock():
             current = self._read_head()
-            self._recover(current)
-            return [e for c in self._chain(current) for e in c["events"] if e["revision"] > revision]
+            if revision >= current["model"]["revision"]:
+                # Nothing to return: validate HEAD/current commit, but do not
+                # read any audit projection or historical model on idle polls.
+                return []
+            payloads = self._recover(current)
+            lines = payloads["operations.jsonl"].splitlines()[max(0, revision + 1) :]
+            # Events are the deterministic per-change projection of operations.
+            return [
+                {
+                    "event": change["object_type"] + ".changed",
+                    "transaction_id": op["transaction_id"],
+                    "revision": op["revision_after"],
+                    **change,
+                }
+                for line in lines
+                for op in [json.loads(line)]
+                for change in op["changes"]
+            ]
 
     def undo(self, actor="agent", expected_revision=None):
         check_actor(actor)

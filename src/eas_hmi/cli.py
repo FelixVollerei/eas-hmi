@@ -63,6 +63,11 @@ def guarded(func):
     @wraps(func)
     def run(*args, **kwargs):
         try:
+            # All command-level --json aliases share the same handling. Most
+            # commands already emit JSON; diff is the documented text exception.
+            ctx = kwargs.get("ctx")
+            if kwargs.get("json_output") and ctx is not None and ctx.obj is not None:
+                ctx.obj["json"] = True
             return func(*args, **kwargs)
         except EngineeringError as exc:
             emit(exc.as_dict())
@@ -97,7 +102,9 @@ def options(
     project: Path = typer.Option(Path("."), "--project"),
     actor: str | None = typer.Option(None, "--actor"),
     expected_revision: int | None = typer.Option(None, "--expected-revision", min=0),
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
     auto_render: bool = typer.Option(False, "--auto-render"),
 ):
     """Global options precede the subcommand. JSON is the default data format."""
@@ -175,7 +182,9 @@ def init(
     ctx: typer.Context,
     from_model: Path | None = typer.Option(None, "--from-model"),
     name: str = "New synthetic project",
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Initialize an empty page or a validated canonical fixture; never overwrite a project."""
     if ctx.obj["expected_revision"] is not None:
@@ -191,7 +200,12 @@ def init(
 
 @app.command()
 @guarded
-def status(ctx: typer.Context, json_output: bool = typer.Option(False, "--json")):
+def status(
+    ctx: typer.Context,
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
+):
     """Read revision, semantic hash and project counts."""
     project = store(ctx).load()
     emit(
@@ -209,7 +223,13 @@ def status(ctx: typer.Context, json_output: bool = typer.Option(False, "--json")
 
 @app.command()
 @guarded
-def inspect(ctx: typer.Context, object_id: str, json_output: bool = typer.Option(False, "--json")):
+def inspect(
+    ctx: typer.Context,
+    object_id: str,
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
+):
     emit(Query(store(ctx).load()).inspect(object_id))
 
 
@@ -223,7 +243,9 @@ def query(
     missing_binding: str | None = None,
     equipment_type: str | None = None,
     template: str | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     nodes = Query(store(ctx).load()).select(
         kind=kind,
@@ -243,7 +265,9 @@ def set_command(
     object_id: str,
     property_name: str,
     value: str,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     transaction(
         ctx,
@@ -259,7 +283,9 @@ def move(
     object_id: str,
     dx: float = 0,
     dy: float = 0,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     transaction(ctx, canonical_json(["move", object_id, dx, dy]), lambda p: edit.move(p, [object_id], dx, dy))
 
@@ -271,7 +297,9 @@ def resize(
     object_id: str,
     width: float | None = None,
     height: float | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     transaction(
         ctx,
@@ -288,7 +316,9 @@ def bind(
     role: str,
     point_ref: str,
     expression: str | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     transaction(
         ctx,
@@ -299,7 +329,14 @@ def bind(
 
 @app.command()
 @guarded
-def unbind(ctx: typer.Context, object_id: str, role: str, json_output: bool = typer.Option(False, "--json")):
+def unbind(
+    ctx: typer.Context,
+    object_id: str,
+    role: str,
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
+):
     transaction(ctx, canonical_json(["unbind", object_id, role]), lambda p: edit.unbind(p, object_id, role))
 
 
@@ -309,7 +346,9 @@ def validate_command(
     ctx: typer.Context,
     strict: bool = False,
     file: Path | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     issues = (
         validate_raw(json.loads(file.read_text(encoding="utf-8")), strict=strict)
@@ -327,9 +366,12 @@ def validate_command(
 def history(
     ctx: typer.Context,
     limit: int = typer.Option(10, min=1, max=1000),
-    json_output: bool = typer.Option(False, "--json"),
+    audit: bool = typer.Option(False, help="Verify every historical commit before reading (slow)."),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
-    emit({"operations": store(ctx).history()[-limit:]})
+    emit({"operations": store(ctx).history(limit=limit, audit=audit)})
 
 
 @app.command()
@@ -337,14 +379,12 @@ def history(
 def diff(
     ctx: typer.Context,
     revision: int | None = typer.Option(None, min=0),
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
-    operations = store(ctx).history()
-    operation = (
-        operations[-1]
-        if revision is None
-        else next((o for o in operations if o["revision_after"] == revision), None)
-    )
+    operations = store(ctx).history(limit=1, revision=revision)
+    operation = operations[0] if operations else None
     if operation is None:
         raise EngineeringError("REVISION_NOT_FOUND", f"No transaction at revision {revision}")
     if json_output or ctx.obj["json"]:
@@ -359,7 +399,12 @@ def diff(
 
 @app.command()
 @guarded
-def undo(ctx: typer.Context, json_output: bool = typer.Option(False, "--json")):
+def undo(
+    ctx: typer.Context,
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
+):
     finish_write(ctx, store(ctx).undo(actor(ctx), ctx.obj["expected_revision"]))
 
 
@@ -370,7 +415,9 @@ def render(
     page: str | None = None,
     output: Path | None = None,
     output_dir: Path | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     project = store(ctx).load()
     if output is not None and output_dir is not None:
@@ -422,7 +469,12 @@ def render(
 @app.command("sync-from-svg")
 @guarded
 def sync(
-    ctx: typer.Context, file: Path, dry_run: bool = False, json_output: bool = typer.Option(False, "--json")
+    ctx: typer.Context,
+    file: Path,
+    dry_run: bool = False,
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     data = file.read_bytes()
     if dry_run:
@@ -455,7 +507,9 @@ def context(
     object_id: str,
     depth: int = typer.Option(1, min=0, max=3),
     limit: int = typer.Option(30, min=1, max=200),
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Bounded local graph; large artwork and arbitrary metadata are omitted."""
     emit(Query(store(ctx).load()).context(object_id, depth, limit))
@@ -474,7 +528,9 @@ def align(
     ctx: typer.Context,
     ids: str = typer.Option(...),
     mode: str = typer.Option(...),
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     selected = selection_ids(ids)
     transaction(ctx, canonical_json(["align", selected, mode]), lambda p: edit.align(p, selected, mode))
@@ -488,7 +544,9 @@ def distribute(
     axis: str = "x",
     gap: float = typer.Option(20, min=0),
     columns: int | None = typer.Option(None, min=1),
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     selected = selection_ids(ids)
     transaction(
@@ -513,7 +571,9 @@ def batch(
     dy: float = 0,
     property_name: str | None = typer.Option(None, "--property"),
     value: str | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Apply move or set to an AND selection in one atomic transaction."""
     if operation not in ("move", "set"):
@@ -545,7 +605,9 @@ def batch(
 def export_manifest(
     ctx: typer.Context,
     output_dir: Path | None = None,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     project = store(ctx).load()
     files, count = manifest_files(project)
@@ -568,7 +630,9 @@ def export_manifest(
 def import_svg_command(
     ctx: typer.Context,
     file: Path,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Create a project from SVG, or append its page through an audited transaction."""
     result = import_svg(file.read_bytes())
@@ -594,7 +658,9 @@ def import_svg_command(
 def events(
     ctx: typer.Context,
     since_revision: int = typer.Option(-1, min=-1),
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Read committed events after an exclusive revision cursor; -1 includes init."""
     emit({"events": store(ctx).events_since(since_revision)})
@@ -612,7 +678,9 @@ def export_assets(
     width: int | None = typer.Option(None, min=1, max=16384),
     height: int | None = typer.Option(None, min=1, max=16384),
     background: str = "#ffffff",
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Export all pages by default, or select a node/template/page; publish complete bundles."""
     project = store(ctx).load()
@@ -640,7 +708,9 @@ def watch(
     interval: float = typer.Option(0.5, min=0.05, max=10),
     timeout: float = typer.Option(0, min=0),
     once: bool = False,
-    json_output: bool = typer.Option(False, "--json"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Explicit JSON; already default except diff (text). watch emits JSONL."
+    ),
 ):
     """Stream JSONL committed events. Default cursor is current revision; timeout=0 waits until Ctrl+C."""
     cursor = store(ctx).load().revision if since_revision is None else since_revision

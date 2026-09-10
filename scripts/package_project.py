@@ -17,7 +17,9 @@ def sha256(data):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=int, choices=(4, 5, 6), default=6)
-    stage_number = parser.parse_args().stage
+    parser.add_argument("--review", action="store_true", help="Include post-delivery corrections evidence")
+    args = parser.parse_args()
+    stage_number = args.stage
     files = set()
     for name in ("src", "tests", "scripts", "docs", "examples", "schemas"):
         files.update(
@@ -47,11 +49,17 @@ def main():
         files.add(latest)
         files.update(p for p in run.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
         evidence.append(run.relative_to(ROOT).as_posix())
+    if args.review:
+        review = ROOT / "build/review"
+        files.update(p for p in review.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+        evidence.append("build/review")
+        files.update(p for p in (ROOT / "dist").glob("*0.1.1*.whl"))
     inventory = []
     output_dir = ROOT / "deliverables"
     output_dir.mkdir(exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    archive = output_dir / f"eas-hmi-stage{stage_number}-{stamp}.zip"
+    label = "review-0.1.1" if args.review else f"stage{stage_number}"
+    archive = output_dir / f"eas-hmi-{label}-{stamp}.zip"
     with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=6) as zipped:
         for path in sorted(files):
             data = path.read_bytes()

@@ -80,6 +80,16 @@ def validate(project: Project, strict=False, out_of_bounds=None):
         issues.append(issue("INVALID_POLICY", project.id, "Invalid out-of-bounds severity"))
         severity = "ERROR"
     for page in project.pages:
+        if not page.nodes:
+            issues.append(
+                issue(
+                    "EMPTY_PAGE",
+                    page.id,
+                    "Page contains no engineering nodes",
+                    "INFO",
+                    "Add nodes when this page is ready for design",
+                )
+            )
         for n in page.nodes:
             if n.page_id not in pages or n.page_id != page.id:
                 issues.append(
