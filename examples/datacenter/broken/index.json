@@ -1,0 +1,32 @@
+{
+  "invalid-equipment": {
+    "expected_issue_counts": {
+      "INVALID_EQUIPMENT_REFERENCE": 2
+    },
+    "exit_code": 2
+  },
+  "invalid-point": {
+    "expected_issue_counts": {
+      "INVALID_POINT_REFERENCE": 2
+    },
+    "exit_code": 2
+  },
+  "duplicate-id": {
+    "expected_issue_counts": {
+      "DUPLICATE_ID": 1
+    },
+    "exit_code": 2
+  },
+  "out-of-bounds": {
+    "expected_issue_counts": {
+      "OUT_OF_BOUNDS": 2
+    },
+    "exit_code": 0
+  },
+  "invalid-geometry": {
+    "expected_issue_counts": {
+      "SCHEMA_VALIDATION": 1
+    },
+    "exit_code": 2
+  }
+}

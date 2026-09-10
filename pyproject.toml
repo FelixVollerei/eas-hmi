@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eas-hmi"
+version = "0.1.0"
+description = "Experimental semantic engineering sidecar for HMI"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.10,<3", "typer>=0.15,<1", "lxml>=5,<7", "Pillow>=10,<13", "filelock>=3.16,<4", "tinycss2>=1.4,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1"]
+
+[project.scripts]
+eas-hmi = "eas_hmi.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["eas_hmi"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
+
+[tool.ruff]
+line-length = 110

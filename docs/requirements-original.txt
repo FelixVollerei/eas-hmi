@@ -1,0 +1,1574 @@
+# EAS-HMI MVP
+
+你需要直接实现一个可运行的实验项目。
+
+项目暂定名：
+
+**EAS-HMI — Engineering Agent Sidecar for HMI**
+
+它的目的不是开发一个新的 HMI 软件，也不是开发通用桌面 Agent，而是验证：
+
+> 对于传统 HMI / SCADA 工程制作工作流，如果给 AI Agent 一个结构化、可查询、可修改、可验证的工程语义通道，是否可以显著减少 AI 对截图、视觉理解、鼠标键盘和原始 SVG/XML 文本编辑的依赖。
+
+本阶段目标是优化如下真实工作流：
+
+AI/工程师制作 SVG  
+→ Inkscape 调整  
+→ 导出图形资产  
+→ 后续导入工业 HMI/SCADA 软件  
+→ 人工完成变量绑定等组态工作
+
+V1 不直接操作 AVEVA Plant SCADA。
+
+重点完成：
+
+**structured engineering model + semantic SVG + Agent CLI + validation + human edit synchronization + export manifest**
+
+---
+
+# 1. 核心设计原则
+
+必须始终遵守：
+
+## 1.1 Canonical Model 是唯一工程事实来源
+
+系统内部维护一个结构化 HMI 工程模型。
+
+SVG 是 Human View / interchange representation。
+
+Codex / Agent 不应通过分析屏幕像素理解工程，也不应以直接修改大型 SVG/XML 文本作为主要工作方式。
+
+正常 Agent 工作流必须是：
+
+Agent intent
+
+→ CLI structured command
+
+→ transaction
+
+→ model modification
+
+→ validation
+
+→ commit
+
+→ SVG render
+
+---
+
+## 1.2 Human 与 Agent 操作同一份工程状态
+
+Agent：
+
+CLI → Canonical Model
+
+Human：
+
+Canonical Model → semantic SVG → Inkscape
+
+如果 Human 使用 Inkscape 修改 semantic SVG，则必须通过显式：
+
+`eas-hmi sync-from-svg`
+
+把支持的修改重新同步回 Canonical Model。
+
+不要建立两个自动竞争的 Source of Truth。
+
+---
+
+## 1.3 Pixels are for humans; semantics are for agents
+
+系统不得要求 Agent：
+
+- OCR
+- screenshot recognition
+- mouse automation
+- keyboard automation
+- screen coordinate reasoning
+
+MVP 的完整 Demo 中不得使用以上能力。
+
+---
+
+## 1.4 Deterministic work belongs to deterministic code
+
+以下工作不得让 LLM 一项一项推理完成：
+
+- 批量移动对象
+- 批量修改尺寸
+- 查找绑定
+- 对齐
+- 分布
+- 查询引用关系
+- 检查缺失字段
+- 重复 ID 检查
+- point reference 检查
+- SVG 生成
+- diff
+- undo
+
+这些必须由本地程序完成。
+
+LLM 只负责表达工程意图和处理异常。
+
+---
+
+# 2. 技术约束
+
+优先：
+
+- Python 3.12+
+- Pydantic v2
+- Typer
+- lxml
+- pytest
+- JSON / JSONL
+- SVG
+- Pillow
+- 如 SVG rasterization 确实需要，可选择 CairoSVG 或 resvg 等轻量方案
+
+允许引入少量合理依赖。
+
+不要在 MVP 中引入：
+
+- React
+- Electron
+- Web 前端
+- PostgreSQL
+- Redis
+- 云服务
+- Docker 强制依赖
+- 自定义 RPC 协议
+- 自定义 Agent transport
+- 登录系统
+- 权限管理系统
+- AVEVA 自动化
+- GUI automation
+- OCR
+- Computer Vision
+
+CLI 是第一版 Agent Interface。
+
+---
+
+# 3. 项目结构
+
+建议结构：
+
+```text
+eas-hmi/
+    pyproject.toml
+    README.md
+
+    src/eas_hmi/
+        cli.py
+
+        model/
+            project.py
+            page.py
+            nodes.py
+            equipment.py
+            points.py
+            binding.py
+
+        operations/
+            base.py
+            geometry.py
+            binding.py
+            transaction.py
+            history.py
+
+        svg/
+            importer.py
+            renderer.py
+            synchronizer.py
+            semantic.py
+
+        validation/
+            validator.py
+            rules.py
+
+        export/
+            manifest.py
+            assets.py
+
+        query/
+            engine.py
+
+    examples/
+        synthetic_dc/
+            ...
+
+    tests/
+        ...
+
+    schemas/
+        ...
+```
+
+可以根据实现需要调整，但必须保持：
+
+model  
+operations  
+SVG adapter  
+validation  
+query  
+export
+
+彼此解耦。
+
+---
+
+# 4. Canonical HMI Model
+
+不要试图在 V1 描述所有工业自动化对象。
+
+只设计足以覆盖典型 HMI 页面编辑的 IR。
+
+至少存在以下对象。
+
+## Project
+
+至少：
+
+- id
+- name
+- version
+- canvas defaults
+- pages
+- equipment registry
+- point registry
+- templates
+- metadata
+
+---
+
+## Page
+
+至少：
+
+- id
+- name
+- width
+- height
+- background
+- nodes
+- metadata
+
+支持典型 1920×1080 等分辨率，但不能硬编码。
+
+---
+
+## Node
+
+所有可视元素具有：
+
+- id
+- kind
+- page_id
+- parent_id
+- x
+- y
+- width
+- height
+- rotation
+- z_index
+- visible
+- locked
+- style
+- metadata
+- equipment_ref，可空
+- bindings，可空
+
+Node ID 必须：
+
+- 稳定
+- 唯一
+- 人类可读或至少可追踪
+
+---
+
+至少支持这些 kind：
+
+- group
+- text
+- shape
+- image_asset
+- opaque_svg
+- data_slot
+- status_indicator
+- equipment_card
+- connection
+
+不需要实现完整图形软件。
+
+---
+
+# 5. Equipment / Point / Binding
+
+## Equipment
+
+至少：
+
+- id
+- name
+- type
+- system
+- parent
+- metadata
+
+示例：
+
+```json
+{
+  "id": "CHWP_01",
+  "name": "CHWP-01",
+  "type": "pump",
+  "system": "CHW"
+}
+```
+
+---
+
+## Point
+
+至少：
+
+- id
+- tag
+- datatype
+- unit
+- equipment_ref
+- role
+- metadata
+
+---
+
+## Binding
+
+不要简单地把 binding 存成任意字符串。
+
+至少明确：
+
+- role
+- point_ref
+- optional expression
+- metadata
+
+例如：
+
+```json
+{
+  "role": "fault",
+  "point_ref": "CHWP01_FLT"
+}
+```
+
+典型 role：
+
+- value
+- status
+- run
+- fault
+- local
+- remote
+- command
+- alarm
+
+系统本身不得假定所有设备都有这些 role。
+
+---
+
+# 6. Component / Template Binding Requirements
+
+实现一个轻量模板定义。
+
+例如：
+
+pump template 可以声明：
+
+required_bindings:
+
+- run
+- fault
+
+optional_bindings:
+
+- local
+- remote
+
+sensor template：
+
+required_bindings:
+
+- value
+
+这样：
+
+`eas-hmi validate`
+
+可以进行语义检查，而不仅仅做 JSON Schema 检查。
+
+---
+
+# 7. Opaque SVG
+
+这是 MVP 的关键要求。
+
+现实 SVG 中存在大量：
+
+- path
+- gradient
+- clipPath
+- mask
+- complicated icon geometry
+- Inkscape specific metadata
+
+Agent 不需要理解这些细节。
+
+系统必须允许：
+
+```text
+opaque_svg
+```
+
+节点。
+
+opaque_svg：
+
+- 保存原始 SVG fragment 或安全引用
+- Agent 可以移动
+- 缩放
+- 旋转
+- 设置 visible
+- 赋予 semantic ID
+- 绑定 equipment
+- 添加 metadata
+
+但不得因为 importer 不理解内部 path 就删除或重建它。
+
+目标是：
+
+**preserve first, understand later**
+
+---
+
+# 8. Semantic SVG
+
+Renderer 生成的 SVG 必须保留稳定的语义标记。
+
+例如：
+
+```xml
+<g
+    id="node-CHWP_CARD_01"
+    data-eas-id="CHWP_CARD_01"
+    data-eas-kind="equipment_card"
+    data-eas-equipment="CHWP_01">
+```
+
+如果有 binding，可以使用合理的数据属性记录引用 ID。
+
+不要把所有 Canonical Model JSON 整份塞进 SVG attribute。
+
+SVG 应只包含：
+
+- 对 round-trip 必要的数据
+- object identity
+- object type
+- equipment reference
+- 必要 synchronization metadata
+
+Canonical Model 仍是主数据。
+
+---
+
+# 9. SVG Import
+
+实现：
+
+```bash
+eas-hmi import-svg input.svg
+```
+
+目标不是完美理解所有 SVG。
+
+Importer 应：
+
+1. 解析 SVG；
+2. 已有 `data-eas-*` 对象恢复为 semantic node；
+3. 普通复杂 SVG group/path 无法识别时，可以转成 opaque_svg；
+4. 保留原始视觉内容；
+5. 为未标识的重要顶层对象生成稳定 ID；
+6. 创建 Canonical Model；
+7. 不修改原始输入文件。
+
+禁止：
+
+因为无法理解某 SVG feature 就静默丢弃。
+
+无法支持时必须：
+
+- preserve as opaque
+或
+- 明确 warning
+
+---
+
+# 10. Render
+
+实现：
+
+```bash
+eas-hmi render
+```
+
+Canonical Model
+
+→ semantic SVG
+
+要求：
+
+- 输出稳定
+- 相同 model 多次 render 应产生确定性结果
+- ID 必须稳定
+- semantic metadata 必须稳定
+- 不因为 render 改变 model
+
+---
+
+# 11. Inkscape Human Editing Round Trip
+
+这是 MVP 的高优先级功能。
+
+工作流：
+
+```text
+model
+↓
+render
+↓
+semantic SVG
+↓
+user edits with Inkscape
+↓
+eas-hmi sync-from-svg edited.svg
+↓
+structured diff
+↓
+transaction
+↓
+model
+```
+
+实现：
+
+```bash
+eas-hmi sync-from-svg <file>
+```
+
+V1 至少识别：
+
+- tagged node translation
+- x/y
+- width/height
+- rotation
+- text content
+- visibility
+
+如果 Inkscape 使用 transform matrix，应尽量解析常规：
+
+translate  
+scale  
+rotate
+
+如果无法安全转换某项编辑：
+
+不得猜测。
+
+报告：
+
+```text
+UNSUPPORTED HUMAN EDIT
+node=...
+attribute=...
+```
+
+Opaque 图形内部艺术修改允许被保存，但必须明确：
+
+这些修改属于 opaque payload，不强制投影为结构化属性。
+
+---
+
+# 12. CLI
+
+CLI 程序命令名：
+
+```text
+eas-hmi
+```
+
+所有适合 Agent 使用的读取类命令都必须支持：
+
+```text
+--json
+```
+
+返回 machine-readable JSON。
+
+不要让 Agent 被迫解析花哨 terminal table。
+
+---
+
+## init
+
+```bash
+eas-hmi init
+```
+
+创建新项目。
+
+---
+
+## inspect
+
+```bash
+eas-hmi inspect CHWP_CARD_01
+```
+
+返回：
+
+- node properties
+- equipment
+- bindings
+- parent
+- children
+- references
+
+支持 `--json`。
+
+---
+
+## query
+
+例如：
+
+```bash
+eas-hmi query --kind equipment_card
+eas-hmi query --page chw
+eas-hmi query --equipment-type pump
+eas-hmi query --missing-binding fault
+eas-hmi query --equipment CHWP_01
+```
+
+支持多个过滤条件 AND。
+
+支持 `--json`。
+
+不要在 MVP 自己开发复杂 SQL 风格语言。
+
+---
+
+## context
+
+```bash
+eas-hmi context CHWP_CARD_01
+```
+
+输出一个适合 Agent 阅读的小型局部工程上下文：
+
+- target
+- parent
+- children
+- equipment
+- points
+- bindings
+- directly related nodes
+- connected nodes
+
+不得输出整个项目。
+
+支持：
+
+```bash
+--depth N
+```
+
+N 默认小值并设置合理上限。
+
+---
+
+# 13. Editing Commands
+
+所有编辑命令必须走 Transaction。
+
+不得直接写 model 后不记录历史。
+
+---
+
+## set
+
+```bash
+eas-hmi set CHWP_CARD_01 width 180
+```
+
+---
+
+## move
+
+```bash
+eas-hmi move CHWP_CARD_01 --dx 40 --dy 0
+```
+
+---
+
+## resize
+
+```bash
+eas-hmi resize CHWP_CARD_01 --width 180 --height 120
+```
+
+---
+
+## bind
+
+```bash
+eas-hmi bind CHWP_CARD_01 fault CHWP01_FLT
+```
+
+必须验证：
+
+point 是否存在。
+
+---
+
+## unbind
+
+实现对应解绑。
+
+---
+
+## align
+
+至少：
+
+```bash
+eas-hmi align --ids A,B,C --mode left
+eas-hmi align --ids A,B,C --mode center-x
+eas-hmi align --ids A,B,C --mode top
+eas-hmi align --ids A,B,C --mode center-y
+```
+
+---
+
+## distribute
+
+至少支持：
+
+```bash
+eas-hmi distribute --ids ... --axis x --gap 20
+```
+
+和：
+
+```bash
+--axis y
+```
+
+---
+
+## batch
+
+允许 query selector 与有限 operation 组合。
+
+例如：
+
+```bash
+eas-hmi batch move \
+  --kind equipment_card \
+  --equipment-type pump \
+  --dx 40
+```
+
+或者：
+
+```bash
+eas-hmi batch set \
+  --kind data_slot \
+  --property width \
+  --value 120
+```
+
+不要允许任意 Python eval。
+
+---
+
+# 14. Transaction
+
+每次编辑应执行：
+
+```text
+Load
+↓
+Check revision
+↓
+Create candidate change
+↓
+Validate affected objects
+↓
+Validate project invariants
+↓
+Commit
+↓
+Write history
+↓
+Render if enabled
+```
+
+如果 validation 出现 ERROR：
+
+整个 transaction 必须 rollback。
+
+WARNING 是否阻断由规则决定。
+
+不得出现：
+
+部分对象成功修改、部分失败，但 CLI 返回 success。
+
+---
+
+# 15. History
+
+写：
+
+```text
+history/operations.jsonl
+```
+
+每个 transaction 至少：
+
+- transaction_id
+- timestamp
+- actor
+- command
+- affected_ids
+- before
+- after
+- validation result
+- revision_before
+- revision_after
+
+Actor 至少支持：
+
+- human
+- agent
+- system
+
+CLI 默认可标记：
+
+```bash
+--actor agent
+```
+
+---
+
+# 16. Diff
+
+实现：
+
+```bash
+eas-hmi diff
+```
+
+默认显示最近 transaction。
+
+以及支持 JSON：
+
+```bash
+eas-hmi diff --json
+```
+
+Diff 必须以 semantic object 为单位。
+
+不要只返回 raw JSON textual diff。
+
+例如：
+
+```text
+CHWP_CARD_01
+
+geometry.x:
+420 → 460
+
+bindings.fault:
+null → CHWP01_FLT
+```
+
+---
+
+# 17. Undo
+
+实现：
+
+```bash
+eas-hmi undo
+```
+
+要求：
+
+最近 transaction 可以完整撤销。
+
+Undo 后：
+
+Canonical Model 的语义状态必须与该 transaction 前一致。
+
+为测试提供 canonical hash 方法。
+
+---
+
+# 18. Validation
+
+实现：
+
+```bash
+eas-hmi validate
+```
+
+必须至少检查：
+
+### Structural
+
+- schema validation
+- duplicate IDs
+- invalid node parent
+- invalid page reference
+- invalid equipment reference
+- invalid point reference
+- circular hierarchy
+
+### Geometry
+
+- negative width
+- negative height
+- NaN / Infinity
+- node outside page bounds
+
+out-of-bounds 可以配置为 WARNING 或 ERROR。
+
+### Binding
+
+- point does not exist
+- binding role violates template rules
+- required binding missing
+- duplicate incompatible bindings
+
+### Semantic
+
+- equipment ref exists
+- equipment hierarchy valid
+- node ID uniqueness
+- template ref validity
+
+返回：
+
+```text
+ERROR
+WARNING
+INFO
+```
+
+并支持 JSON。
+
+每条 issue 必须有：
+
+- code
+- severity
+- object_id
+- message
+- suggested_action，可选
+
+---
+
+# 19. Binding Manifest
+
+实现：
+
+```bash
+eas-hmi export-manifest
+```
+
+输出：
+
+```text
+build/bindings.csv
+build/bindings.json
+```
+
+至少字段：
+
+- page
+- node_id
+- node_kind
+- equipment_id
+- equipment_type
+- binding_role
+- point_id
+- point_tag
+- datatype
+- unit
+
+目标：
+
+使后续人工 Plant SCADA 绑定工作拥有明确、可筛选、可审核的清单。
+
+V1 不直接修改 Plant SCADA。
+
+---
+
+# 20. Bitmap / Asset Export
+
+实现：
+
+```bash
+eas-hmi export-assets
+```
+
+至少支持：
+
+- SVG fragment
+- PNG
+- BMP
+
+如果设备/环境不支持稳定 rasterization，应给出清楚错误，而不是生成损坏文件。
+
+支持按：
+
+- node ID
+- template
+- page
+
+导出。
+
+需要正确处理：
+
+- transparent background
+- requested dimensions
+- bounding box
+
+这是为了让当前 SVG → bitmap → Plant SCADA 素材工作流可直接使用。
+
+---
+
+# 21. Structured Event Stream
+
+实现轻量级：
+
+```text
+history/events.jsonl
+```
+
+每个成功 transaction 产生 event。
+
+例如：
+
+```json
+{
+  "event": "node.changed",
+  "revision": 184,
+  "object_id": "CHWP_CARD_01",
+  "changes": {
+    "x": {
+      "old": 420,
+      "new": 460
+    }
+  }
+}
+```
+
+再实现可选：
+
+```bash
+eas-hmi watch --json
+```
+
+当 model revision 改变时，将 structured delta 输出到 stdout。
+
+不要实现 WebSocket/MCP。
+
+CLI/stdout 已足够用于验证 Agent side-channel 思想。
+
+---
+
+# 22. Synthetic Data Center Demo
+
+不得使用任何真实客户工程、客户名称、客户点表或 proprietary asset。
+
+生成完全合成的数据中心 HMI 示例。
+
+至少：
+
+## Pages
+
+- overview
+- cooling
+- electrical
+
+## Equipment
+
+至少：
+
+- 20 pumps
+- 20 valves
+- 30 sensors
+- 12 UPS
+- 8 generators
+
+## Points
+
+至少 300 个 synthetic points。
+
+## Visual Nodes
+
+至少 500 个 nodes。
+
+包含：
+
+- equipment cards
+- data slots
+- status indicators
+- text
+- groups
+- connections
+- several opaque SVG icons
+
+---
+
+故意制造至少：
+
+- 3 missing required bindings
+- 2 invalid equipment refs
+- 2 invalid point refs
+- 1 duplicate semantic ID fixture
+- 2 out-of-bounds nodes
+- 1 invalid geometry fixture
+
+某些严重错误可放在独立 broken fixture，避免主 demo 无法运行。
+
+---
+
+# 23. Required End-to-End Agent Demo
+
+创建：
+
+```text
+scripts/demo_agent_workflow.sh
+```
+
+或等价 Python script。
+
+完整展示以下场景。
+
+不得依赖 GUI。
+
+---
+
+## Task A — Understand without vision
+
+通过：
+
+```text
+query
+inspect
+context
+```
+
+回答：
+
+- cooling 页面有多少 pump equipment cards？
+- 哪些 pump 缺少 fault binding？
+- CHWP_07 和哪些对象直接关联？
+- 它使用哪些 points？
+
+---
+
+## Task B — Fix bindings
+
+使用 structured commands：
+
+找到所有缺少 fault binding 的 pump。
+
+根据 synthetic point registry 修复。
+
+重新 validate。
+
+结果：
+
+0 个 pump 缺少 required fault binding。
+
+---
+
+## Task C — Batch layout
+
+选择 cooling 页面所有 pump cards。
+
+将：
+
+- width 设置一致
+- 横向或网格重新排列
+- 保持固定 gap
+
+不得逐对象手工编辑 JSON。
+
+必须使用 batch / align / distribute 等结构化操作。
+
+---
+
+## Task D — Human-edit simulation
+
+Render semantic SVG。
+
+测试脚本模拟 Inkscape 类编辑：
+
+- 移动一个 tagged node
+- 修改一段 tagged text
+
+然后：
+
+```bash
+sync-from-svg
+```
+
+Canonical Model 中：
+
+- x/y 正确更新
+- text 正确更新
+
+并写入 transaction history。
+
+---
+
+## Task E — Diff
+
+显示 Task B/C/D 产生的 semantic diff。
+
+确保 diff 表达工程对象变化，而不是 raw XML diff。
+
+---
+
+## Task F — Undo
+
+undo 最近一次修改。
+
+验证 canonical semantic hash 回到预期值。
+
+---
+
+## Task G — Export
+
+生成：
+
+- semantic SVG
+- binding CSV
+- binding JSON
+- 至少一个 BMP asset
+
+所有结果放在：
+
+```text
+build/
+```
+
+---
+
+# 24. Acceptance Criteria
+
+项目完成必须同时满足以下条件。
+
+## Functional
+
+1. `pip install -e .` 成功。
+2. CLI help 正常。
+3. synthetic project 可以生成。
+4. query / inspect / context 正常。
+5. single edit 正常。
+6. batch edit 正常。
+7. binding 正常。
+8. validation 能发现设计好的错误。
+9. render 输出有效 SVG。
+10. semantic SVG 保留稳定 ID。
+11. sync-from-svg 能同步规定的人类编辑类型。
+12. diff 正常。
+13. undo 正常。
+14. binding manifest 正常。
+15. PNG/BMP asset export 正常。
+16. demo script 从头运行成功。
+
+---
+
+## Agent-native
+
+完整 demo 中：
+
+- screenshot count = 0
+- OCR calls = 0
+- mouse actions = 0
+- keyboard GUI actions = 0
+
+所有工程理解来自：
+
+- structured model
+- query
+- inspect
+- context
+- validation
+- event/diff
+
+---
+
+## Safety / Correctness
+
+任何 write command：
+
+- 必须 transaction 化
+- validation error 时不得 partial commit
+- 必须留下 operation history
+- 必须可定位 affected IDs
+
+---
+
+## Round-trip
+
+对于项目自身 renderer 输出的 semantic SVG：
+
+render  
+→ sync-from-svg without modification
+
+必须：
+
+- 不产生 semantic changes
+- model canonical hash 保持一致
+
+对支持的人类修改：
+
+- translation
+- resize
+- rotation
+- text edit
+- visibility
+
+必须正确产生 structured operation。
+
+---
+
+## Determinism
+
+相同 Canonical Model 连续 render：
+
+应产生语义等价且规范化稳定的 SVG。
+
+如果可以做到 byte-identical，应做到 byte-identical。
+
+---
+
+## Performance
+
+在 synthetic project 至少：
+
+- 500 visual nodes
+- 300 points
+
+情况下：
+
+正常 query 和 validation 不得有明显交互延迟。
+
+不要做过早微优化，但不得每个 query 调 LLM 或完整 rasterization。
+
+---
+
+# 25. Testing
+
+使用 pytest。
+
+至少测试：
+
+- model serialization
+- schema validation
+- duplicate ID
+- reference integrity
+- template required binding
+- query
+- inspect
+- context
+- single edit
+- batch edit
+- transaction rollback
+- diff
+- undo
+- canonical hashing
+- render
+- semantic metadata
+- SVG import
+- opaque SVG preservation
+- sync-from-svg no-op
+- sync-from-svg geometry
+- sync-from-svg text
+- binding manifest
+- asset export
+
+核心代码测试覆盖率目标：
+
+>= 85%
+
+不要为了覆盖率编写无意义测试。
+
+---
+
+# 26. README
+
+README 必须明确解释：
+
+### Problem
+
+为什么 GUI-first software 对 Agent 存在 observation / transcription / execution cost。
+
+### Architecture
+
+Canonical Model  
+Agent CLI  
+Semantic SVG  
+Human Editor  
+Export
+
+### Why CLI first
+
+因为 Codex 天然能可靠调用 CLI，并且我们当前的实验目标是验证 semantic side-channel，而不是开发 UI。
+
+### Demo
+
+给出从 clone/install 到完整 demo 的命令。
+
+### Scope
+
+明确：
+
+This is an experimental engineering sidecar.
+
+It is not:
+
+- a replacement for Plant SCADA
+- an AVEVA automation tool
+- a universal HMI format
+- a new MCP-like protocol
+- a GUI agent
+
+---
+
+# 27. Explicit Non-Goals
+
+当前阶段禁止为了“完整性”主动扩张到：
+
+- Plant SCADA project editing
+- OPC UA runtime control
+- PLC control
+- production environment
+- remote equipment operation
+- universal industrial schema
+- AutoCAD support
+- Excel support
+- PowerPoint support
+- MCP server
+- VS Code extension
+- web visual editor
+- AI model integration
+
+这些全部属于后续阶段。
+
+---
+
+# 28. Important Engineering Decisions
+
+遇到设计选择时优先级：
+
+1. data integrity
+2. deterministic behavior
+3. inspectability
+4. reversibility
+5. preservation of unsupported content
+6. ease of Agent use
+7. simplicity
+8. performance
+9. UI aesthetics
+
+绝不能为了代码简单而静默删除无法理解的数据。
+
+---
+
+# 29. Deliverables
+
+最终必须实际存在：
+
+- installable Python package
+- CLI
+- Canonical Model
+- SVG importer
+- semantic SVG renderer
+- sync-from-svg
+- query engine
+- structured operations
+- transactions
+- validation
+- diff
+- undo
+- event history
+- binding manifest exporter
+- bitmap exporter
+- synthetic DC project
+- pytest tests
+- complete README
+- one-command/demo-script workflow
+
+---
+
+# 30. Final Verification
+
+完成开发后，不要只告诉用户“implementation complete”。
+
+实际运行：
+
+1. tests
+2. demo
+3. validation
+4. render
+5. export
+
+然后汇报：
+
+- test result
+- coverage
+- generated project statistics
+- number of nodes
+- number of points
+- detected intentional errors
+- demo commands executed
+- output artifact paths
+- known limitations
+
+如果任何 acceptance criterion 没完成，应明确列出，不得假称已完成。
+
+---
+
+# Final Instruction
+
+先检查当前 repository 和运行环境。
+
+然后建立合理的 implementation plan，并直接实现。
+
+不要停留在设计阶段。
+
+优先完成一个垂直贯通、可靠、可测试的 MVP，而不是很多半成品模块。
+
+当实现选择与本 Prompt 冲突时，以：
+
+**Agent 无需视觉即可理解和可靠修改 HMI 工程**
+
+这个核心目标作为最终判断标准。

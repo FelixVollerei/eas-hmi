@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="120" height="100" viewBox="0 0 120 100">
+  <metadata>Entirely synthetic icon; no customer asset.</metadata>
+  <defs>
+    <linearGradient id="paint"><stop offset="0" stop-color="#17b890"/><stop offset="1" stop-color="#426fe0"/></linearGradient>
+    <clipPath id="clip"><rect x="10" y="10" width="100" height="80" rx="12"/></clipPath>
+    <mask id="mask"><rect width="120" height="100" fill="white"/><circle cx="60" cy="50" r="9" fill="black"/></mask>
+    <path id="blade" d="M60 25 C90 12 92 60 65 49 C65 40 62 33 60 25Z"/>
+  </defs>
+  <style>.panel {fill:url(#paint)} #rim {fill:none;stroke:#dbe7ff;stroke-width:2} path {stroke:none}</style>
+  <g clip-path="url(#clip)" mask="url(#mask)" inkscape:label="Synthetic opaque art">
+    <rect id="panel" class="panel" width="120" height="100"/>
+    <use xlink:href="#blade" fill="#e3efff"/>
+    <use xlink:href="#blade" transform="rotate(120 60 50)" fill="#e3efff"/>
+    <use xlink:href="#blade" transform="rotate(240 60 50)" fill="#e3efff"/>
+    <circle id="rim" cx="60" cy="50" r="31"/>
+  </g>
+</svg>

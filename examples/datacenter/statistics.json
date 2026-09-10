@@ -1,0 +1,34 @@
+{
+  "pages": {
+    "overview": 35,
+    "cooling": 493,
+    "electrical": 144
+  },
+  "nodes": 672,
+  "node_kinds": {
+    "connection": 79,
+    "data_slot": 90,
+    "equipment_card": 97,
+    "group": 5,
+    "image_asset": 1,
+    "opaque_svg": 95,
+    "shape": 93,
+    "status_indicator": 180,
+    "text": 32
+  },
+  "equipment": {
+    "generator": 8,
+    "pump": 20,
+    "sensor": 30,
+    "ups": 12,
+    "valve": 20
+  },
+  "points": 390,
+  "templates": 5,
+  "canonical_hash": "9d1e6d8fc8d80a93107949c5757cb4d2c5467b75221afe9b0760543c2c0b6f8f",
+  "missing_fault_cards": [
+    "CHWP_CARD_03",
+    "CHWP_CARD_07",
+    "CHWP_CARD_14"
+  ]
+}
