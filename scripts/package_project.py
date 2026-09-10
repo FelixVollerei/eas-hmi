@@ -29,7 +29,7 @@ def main():
             and "__pycache__" not in path.parts
             and not any(p.endswith(".egg-info") for p in path.parts)
         )
-    files.update(ROOT / name for name in ("README.md", "pyproject.toml", ".gitignore"))
+    files.update(ROOT / name for name in ("README.md", "pyproject.toml", ".gitignore", ".gitattributes"))
     if (ROOT / "requirements-tested.txt").is_file():
         files.add(ROOT / "requirements-tested.txt")
     evidence = []
