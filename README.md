@@ -4,7 +4,8 @@
 所有工程改动通过校验、事务、语义 diff 和历史记录进入 Canonical Model。
 
 交付包含三页面合成数据中心：**90 台设备、390 点位、672 节点**，以及从查询到导出的完整 A–G Demo。
-最终实测结果、环境和限制见 [最终验收报告](docs/stage-6-report.md)。
+**当前为 0.1.1 复核候选版：历史读取等问题已修订，但本机仍出现原生访问违规，稳定性验收未通过。**
+当前结果见 [复核报告](docs/review-corrections.md)；[阶段 6 报告](docs/stage-6-report.md)保留原交付时的测量。
 
 ## 要解决的问题
 
@@ -198,3 +199,9 @@ ZIP 包含完整 src/tests/scripts/schemas/examples/docs、README、pyproject、
 - [原始要求](docs/requirements-original.txt)
 - [六阶段计划](docs/implementation-plan.md) 与 [需求映射](docs/acceptance-matrix.md)
 - 历史报告：[阶段 1](docs/stage-1-report.md)、[阶段 2](docs/stage-2-report.md)、[阶段 3](docs/stage-3-report.md)、[阶段 4](docs/stage-4-report.md)、[阶段 5](docs/stage-5-report.md)
+
+## 交付后复核
+
+长历史读放大、INFO、命令/help 与文档更正见 [复核报告](docs/review-corrections.md)。`history --audit` 显式校验全部历史提交，普通历史读取复用经过摘要校验的投影；空事件读取只校验当前提交。所有命令默认 JSON（diff 默认文本、watch 为 JSONL）；`--json` 是保留的显式兼容标志，通过公共包装器统一处理。
+
+未来手动比较使用 [实验题目与流程](docs/agent-comparison/protocol.md)、[CLI 组 prompt](docs/agent-comparison/prompt-semantic.md)、[视觉组 prompt](docs/agent-comparison/prompt-visual.md)。本次没有执行 Agent 对照实验。原生崩溃仍未归因，见 [诊断说明](docs/native-crash-diagnostics.md)。

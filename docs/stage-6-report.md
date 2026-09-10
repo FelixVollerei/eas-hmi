@@ -2,12 +2,14 @@
 
 日期：2026-09-10。项目：`D:\Codes\eas-hmi`。版本：0.1.0。
 
+**历史报告说明：后续复核发现长历史读放大和原生崩溃；当前 0.1.1 的稳定性验收未通过。请以 [复核报告](review-corrections.md) 为当前状态。下文数字保留原测量，不代表当前版全量通过。**
+
 ## 结论
 
 **六阶段实验 MVP 的实现和本机验收已完成。**
 
 干净 editable 安装、wheel 构建与另一新环境安装、完整测试、两次 A–G、严格校验、渲染、
-清单/位图导出和正式 CLI 性能测量均通过。没有遗留未执行的必需 MVP 验收项。
+清单/位图导出和正式 CLI 性能测量均通过。当时的用例未覆盖长历史读开销，也未直接验证默认 INFO 规则；此处原“没有遗漏”的结论撤回。
 验收以本文声明的环境及 SVG/编辑支持范围为边界，不代表生产 SCADA 或任意 SVG 格式兼容性认证。
 
 最终证据目录：[20260910T061929Z-f55e5f94](../build/stage6/20260910T061929Z-f55e5f94/)。
@@ -21,7 +23,7 @@
 | 测试时间 | JUnit **96.640 秒** |
 | 整包行覆盖率 | **94.84%**（1893/1996 行），0 excluded，实际执行 ≥85% 门槛 |
 | 新 editable 环境 | 从独立源码副本安装 `.[dev]` 成功；pip check 通过 |
-| CLI help | editable/wheel 顶层 help + 23 个子命令 help 全部 exit 0 |
+| CLI help | editable/wheel 顶层 help + 当时抽查的 23/24 个子命令 help exit 0（遗漏 status；修订后补验全部 24 个） |
 | wheel | 实际构建 `eas_hmi-0.1.0-py3-none-any.whl`，新 venv 仅安装 wheel 和运行依赖 |
 | 模块路径 | editable 来自复制的 src；wheel 来自独立 venv 的 site-packages；user site 均禁用 |
 | A–G | 两环境各 **75 次 CLI**，共 **150 次工作流调用**，A–G 均通过 |

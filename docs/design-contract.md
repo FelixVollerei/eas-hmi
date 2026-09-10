@@ -79,7 +79,7 @@
 - 命令名 eas-hmi，读命令支持 --json；JSON 模式 stdout 仅输出有效 JSON/JSONL。
 - --project 指定工程目录，编辑支持 actor（agent/human/system）、expected revision。
 - 有限 AND 查询，无 SQL/eval。inspect 覆盖 node/equipment/point 的属性及引用。
-- context 默认 depth=1，上限 3；默认对象上限 100，最大 200，明确 truncated。
+- context 默认 depth=1，上限 3；默认对象上限 30，最大 200，明确 truncated。
 - context 提供目标、父子、设备、点位、绑定、直接关联和连接对象，不嵌入整工程。
 - 空 query 返回空集合；空写选择明确 no-op 或失败，不伪造修改。
 - JSON 错误包含 code/message/details；成功 exit 0，校验失败/不支持/冲突为非零。

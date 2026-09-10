@@ -1,15 +1,19 @@
 # 最终验收逐项结果
 
+**本表是 0.1.0 历史验收。当前 0.1.1 稳定性验收未通过，详见 [复核报告](review-corrections.md)。**
+
 证据基线：2026-09-10，`build/stage6/20260910T061929Z-f55e5f94/`。
 范围为 [原始实验 MVP 要求](requirements-original.txt) 及已明确的 SVG/布局支持子集。
 详细环境、测量数据、文件路径与限制见 [最终报告](stage-6-report.md)。
+
+最新更正见 [复核报告](review-corrections.md)。以下保留阶段 6 原始测量，不视为修订源码的新安装证据。
 
 ## Functional 16 项
 
 | 项 | 判定 | 实际证据 |
 |---|---|---|
 | F01 安装 | 通过 | 新 venv 的 `pip install -e .[dev]` exit 0；另一个新 venv 仅安装构建 wheel 与运行依赖；两边 pip check 通过 |
-| F02 CLI help | 通过 | editable/wheel 顶层 help 与 editable 的 23 个子命令 help 全部 exit 0 |
+| F02 CLI help | 通过 | editable/wheel 顶层 help 与 editable 的 当时抽查的 23/24 个子命令 help exit 0（遗漏 status；修订后补验全部 24 个） |
 | F03 生成项目 | 通过 | 两环境从新目录生成 3 页、672 nodes、390 points、90 equipment，source hash 与统计一致 |
 | F04 query/inspect/context | 通过 | A 正确返回 20 个 pump cards、CHWP_07 的节点/点位/连接；有限 context 标记截断 |
 | F05 单对象编辑 | 通过 | 全量 tests 的 set/move/resize、锁定、非法参数、记录与 hash 用例 |
@@ -44,7 +48,7 @@
 | R01–R03 原则、技术、结构 | 通过；Canonical/CLI/事务主通道，Python 技术栈，模块职责分离，无禁止框架或服务 |
 | R04–R06 模型、设备点位绑定、模板 | 通过；Pydantic schema、9 kind、独立 registry、结构化 role/ref/expression、required/optional |
 | R07–R11 Opaque、semantic SVG、import/render/sync | 在声明子集内通过；unsupported 明确拒绝或 composite opaque 保留，SVG 不承担完整模型备份 |
-| R12–R13 CLI、编辑 | 通过；23 个命令 help、完整查询与有界 context、single/batch/layout，无 eval |
+| R12–R13 CLI、编辑 | 通过；24 个命令；当时 help 脚本抽查 23 个，遗漏 status、完整查询与有界 context、single/batch/layout，无 eval |
 | R14–R17 Transaction/history/diff/undo | 通过；原子 HEAD、不可变提交、可恢复日志、语义 diff、最近事务撤销 |
 | R18–R21 validate/manifest/assets/events | 通过；全部规则用例、实际文件、原始 events 与 watch 用例 |
 | R22–R23 Synthetic/Demo | 通过；数量超下限、全部错误最小数量、两次新环境 A–G |

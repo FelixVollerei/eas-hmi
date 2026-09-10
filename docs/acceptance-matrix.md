@@ -4,7 +4,7 @@
 本表为阶段1的完整需求映射；后续实测状态以各阶段报告为准，不能把部分阶段通过当作完整功能验收。
 阶段2见stage-2-report.md，阶段3见stage-3-report.md。设计文档不能替代运行证据。
 
-**最终状态（阶段 6）**：F01–F16 与约定的非功能条件均已实测通过。
+**阶段 6 历史结果**：F01–F16 的当时用例通过；性能只测了 8 条提交的 query/validate，不覆盖长历史。复核发现 INFO 默认规则/验收覆盖和命令计数问题，修订结果见 [复核报告](review-corrections.md)。
 最终逐项判定见 [final-acceptance.md](final-acceptance.md)，数据及限制见 [stage-6-report.md](stage-6-report.md)。
 本文件末尾的各阶段状态保留为历史记录，不覆盖最终判定。
 
@@ -116,18 +116,18 @@
 | F | undo D后hash等于D前，revision继续审计增长 |
 | G | build中semantic SVG、bindings CSV/JSON、至少一个BMP，另验证PNG |
 
-## 阶段 4 证据状态
+## 阶段 4 历史记录（不是当前待办）
 
 完整 query/context、align/distribute/batch、9 kind render、template rules、SVG import、
 manifest、asset selectors 与 events/watch 已由 `test_stage4_features.py` / `test_stage4_svg.py` 覆盖。
 阶段 2/3 测试继续全量运行；当前共 222 项，整包覆盖率 94.34%，45 次安装 CLI 验收调用。
 详细证据与限制见 [stage-4-report.md](stage-4-report.md)。
-F16、Synthetic fixtures 的最低规模/数量、A–G 大型 Demo 和性能条件仍待阶段 5/6，不计为已完成。
+F16、Synthetic fixtures 的最低规模/数量、A–G 大型 Demo 和性能条件在阶段 4 结束时尚未执行；随后由阶段 5/6 补验。
 
-## 阶段 5 证据状态
+## 阶段 5 历史记录（不是当前待办）
 
 F16、大型 Demo 数量和独立 broken fixtures、Task A–G 已完成：3 页、672 nodes、390 points、90 equipment。
 `test_stage5_demo.py` 新增 15 项；总计 237 项通过，整包覆盖率 94.84%。
 `scripts/demo_agent_workflow.py` 通过 75 次真实 CLI 调用验收 A–G 与失败保护。
 结果和限制见 [stage-5-report.md](stage-5-report.md)。
-干净安装和正式 p50/p95 性能条件仍待阶段 6；未标记整个 MVP 最终验收完成。
+阶段 5 结束时尚未执行干净安装和正式 p50/p95 性能测量；随后阶段 6 完成了其报告中限定的测试。
