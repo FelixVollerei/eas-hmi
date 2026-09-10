@@ -13,3 +13,5 @@
 复核测量中的 107 提交工程会封装为经 CRC/逐文件摘要核验的 ZIP，原目录移到外部归档；原始性能 JSON 和原生崩溃记录仍保留在 build/review。没有删去失败测量来使报告变好。
 
 历史文档中的 venv 绝对路径是当时的安装证据，不是移动归档后的可运行入口。当前启动仍可使用项目 `.venv/Scripts/eas-hmi.exe`；新解压环境请按 README 重建依赖。
+
+增量评审：`git diff a5460a34e80725fa3c17937dda8d5542caab1800 HEAD`。ZIP 内 `build/review/repository.bundle` 包含本地 Git 记录，可以执行 `git clone <repository.bundle绝对路径> <全新目录>` 恢复源码仓库；测量/运行证据仍从完整 ZIP 查看。没有把二进制证据或 venv 塞进 Git 历史。
