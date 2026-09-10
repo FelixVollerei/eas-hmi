@@ -7,6 +7,8 @@
 **当前为 0.1.1 复核候选版：历史读取等问题已修订，但本机仍出现原生访问违规，稳定性验收未通过。**
 当前结果见 [复核报告](docs/review-corrections.md)；[阶段 6 报告](docs/stage-6-report.md)保留原交付时的测量。
 
+公开仓库：[FelixVollerei/eas-hmi](https://github.com/FelixVollerei/eas-hmi)。包含源码、测试、合成数据、文档和实验 prompt；本机虚拟环境、原始诊断日志及 build/deliverables 产物不上传。文档中指向这些目录的历史证据链接仅在本地完整交付包中有效，可以使用 scripts 中的验证脚本重新生成运行证据。公开源码不改变当前候选版的验收结论。
+
 ## 要解决的问题
 
 GUI-first 工程软件给 Agent 带来三类成本：

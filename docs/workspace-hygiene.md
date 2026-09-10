@@ -1,6 +1,6 @@
 # 源码、证据与本机环境
 
-本地 Git 从交付现状开始记录：基线 `a5460a34e80725fa3c17937dda8d5542caab1800`。它不是六阶段开发过程的重建。后续复核修复与实验协议可以相对该基线评审。未设置 GitHub remote，也没有上传。
+本地 Git 从交付现状开始记录：基线 `a5460a34e80725fa3c17937dda8d5542caab1800`。它不是六阶段开发过程的重建。后续复核修复与实验协议可以相对该基线评审。复核交付后，应用户要求设置公开远端 https://github.com/FelixVollerei/eas-hmi；上传 Git 跟踪的源码与文档，不上传本机诊断日志、虚拟环境或运行产物。
 
 提交范围是 src、tests、scripts、docs、examples、schemas 和根配置。`.venv`、build、dist、deliverables、Python/pytest/ruff 缓存、coverage 和 egg-info 均不进入 Git。`.venv` 是仍在使用的本机依赖环境，体积不等于源码体积；不把它放进交付 ZIP。
 

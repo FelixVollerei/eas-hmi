@@ -2,6 +2,8 @@
 
 日期：2026-09-10。项目：`D:\Codes\eas-hmi`。
 
+发布补记：本报告完成后，应用户要求将源码公开到 [FelixVollerei/eas-hmi](https://github.com/FelixVollerei/eas-hmi)。下述测试结果保持原记录；GitHub 不包含本机原始日志和 build 证据目录，相关链接需在完整本地交付包中查看。
+
 **结论：读放大、INFO、CLI 说明和文档问题已修订，实验协议已交付；原生崩溃仍未解决，稳定性验收未通过。不能标记本轮“全部通过”。**
 
 ## 逐项处理
