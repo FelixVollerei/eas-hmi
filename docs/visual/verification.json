@@ -28,5 +28,12 @@
     "legacy_help_exit_code": 0
   },
   "native_access_violation_seen_this_release": false,
-  "historical_native_crash_resolved": false
+  "historical_native_crash_resolved": false,
+  "github_ci": {
+    "url": "https://github.com/FelixVollerei/eas-hmi/actions/runs/34799306997",
+    "commit": "0e3eb690ed177b9fce5466313efbb5bf19d9d4e3",
+    "conclusion": "success",
+    "scope": "Ubuntu Visual tests and three demos"
+  },
+  "fresh_public_clone_example_replay": true
 }
