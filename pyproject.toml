@@ -1,19 +1,28 @@
 [build-system]
-requires = ["setuptools>=69"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "eas-hmi"
-version = "0.1.1"
-description = "Experimental semantic engineering sidecar for HMI"
+name = "eas-visual"
+version = "0.1.0"
+description = "Give your agent editable vision: reversible, verified local image edits"
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
-dependencies = ["pydantic>=2.10,<3", "typer>=0.15,<1", "lxml>=5,<7", "Pillow>=10,<13", "filelock>=3.16,<4", "tinycss2>=1.4,<2"]
+dependencies = ["pydantic>=2.10,<3", "typer>=0.15,<1", "lxml>=5,<7", "Pillow>=10,<13", "filelock>=3.16,<4", "tinycss2>=1.4,<2", "numpy>=2,<3"]
+
+[project.urls]
+Repository = "https://github.com/FelixVollerei/eas-hmi"
+Issues = "https://github.com/FelixVollerei/eas-hmi/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1"]
+mcp = ["mcp>=1.28,<2"]
 
 [project.scripts]
 eas-hmi = "eas_hmi.cli:app"
+eas-visual = "eas_visual.cli:main"
+eas-visual-mcp = "eas_visual.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

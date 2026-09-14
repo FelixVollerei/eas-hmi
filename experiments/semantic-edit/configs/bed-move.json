@@ -1,0 +1,11 @@
+{
+  "title": "Case A · 按需提取床并移动",
+  "semantic_label": "bed",
+  "instruction": "将选定的床向右移动 12 像素、向下移动 26 像素，保持床的原始视觉，其余区域不变。",
+  "operation": "move",
+  "polygon": [[229,418],[318,416],[327,421],[329,478],[323,483],[229,480]],
+  "translation": [12,26],
+  "margin_px": 2,
+  "repair_donor_bbox": [251,489,319,517],
+  "zoom_bbox": [210,385,353,524]
+}

@@ -1,209 +1,174 @@
-# EAS-HMI — Engineering Agent Sidecar for HMI
+# EAS Visual
 
-一个可运行的 Python 工程侧车实验：Agent 用结构化 CLI 查询和编辑工程，人用带语义 ID 的 SVG 编辑图形，
-所有工程改动通过校验、事务、语义 diff 和历史记录进入 Canonical Model。
+**Give your agent editable vision.**
 
-交付包含三页面合成数据中心：**90 台设备、390 点位、672 节点**，以及从查询到导出的完整 A–G Demo。
-**当前为 0.1.1 复核候选版：历史读取等问题已修订，但本机仍出现原生访问违规，稳定性验收未通过。**
-当前结果见 [复核报告](docs/review-corrections.md)；[阶段 6 报告](docs/stage-6-report.md)保留原交付时的测量。
+EAS Visual 0.1 Experimental is a local, reversible visual editing tool for Agents.
+It preserves a pixel-faithful baseline, promotes only the object you want to edit,
+and verifies that everything outside the declared edit support stays unchanged.
 
-公开仓库：[FelixVollerei/eas-hmi](https://github.com/FelixVollerei/eas-hmi)。包含源码、测试、合成数据、文档和实验 prompt；本机虚拟环境、原始诊断日志及 build/deliverables 产物不上传。文档中指向这些目录的历史证据链接仅在本地完整交付包中有效，可以使用 scripts 中的验证脚本重新生成运行证据。公开源码不改变当前候选版的验收结论。
+**Image → Editable Scene → Agent Edit → Verified Result**
 
-## 要解决的问题
+![A bed moved through a local structural operation](docs/visual/structural.png)
 
-GUI-first 工程软件给 Agent 带来三类成本：
+## Why
 
-- **Observation**：从画面中寻找设备、点位、层级与当前状态，像素不直接提供稳定工程身份。
-- **Transcription**：把看到的内容转录成对象 ID、点位标签、坐标和绑定关系，容易混淆近似名字。
-- **Execution**：依赖焦点、窗口、菜单和位置执行动作，难以准确核对“改了哪些工程对象”。
+A generative image editor can change surrounding details even when the prompt asks it not to.
+EAS Visual puts an explicit boundary around what the model may contribute:
 
-EAS-HMI 将这些工作转成可查询对象、明确引用、确定性渲染和可回放命令。
-CLI-first 让 Codex 等 Agent 直接使用现有进程调用能力，实验重点是验证 semantic side-channel；
-没有开发额外 UI、协议服务器或模型 API 集成。
-
-## 架构
-
-```mermaid
-flowchart LR
-    Agent --> CLI[Structured CLI]
-    CLI --> Tx[Candidate / Validate / Transaction]
-    Tx --> Model[Canonical Model]
-    Model --> Query[Query / Inspect / Context]
-    Query --> Agent
-    Model --> Renderer[Renderer]
-    Renderer --> SVG[Semantic SVG]
-    SVG --> Human[Human editor]
-    Human --> Edited[Edited SVG]
-    Edited --> Sync[Plan sync / Semantic diff]
-    Sync --> Tx
-    Model --> Export[Binding CSV/JSON and SVG/PNG/BMP]
-    Tx --> History[History / Diff / Undo / Events]
+```text
+Immutable baseline
+  → explicit object mask + editable support
+  → local model patch / structural transform
+  → strict masked composite
+  → EAS SVG render + pixel validation
+  → reversible revision
 ```
 
-Canonical Model 是唯一工程事实来源。项目目录中的 `HEAD.json` 指向 `.eas/commits/` 内的不可变提交，
-`history/operations.jsonl` 与 `history/events.jsonl` 是可检查、可恢复的投影。派生 SVG/位图/清单不是主数据。
-提交前出错不会部分写入工程；提交后派生渲染失败会明确说明工程已提交。
+The image model supplies a local candidate. EAS Visual preserves the original,
+records provenance, discards unauthorized context changes and supports undo.
+The model can be replaced without changing the project/history format.
 
-模块位于 `src/eas_hmi/{model,operations,svg,validation,query,export,demo}`。
-[JSON Schema](schemas/project.schema.json) 由 Pydantic 模型生成；[设计约定](docs/design-contract.md) 说明坐标、ID 和同步范围。
+## Quick start
 
-## 环境与安装
+Requires **Python 3.12+** and **Inkscape**. The release was developed with Python 3.12
+and Inkscape 1.4.2; checks fail closed if a renderer cannot reproduce the expected pixels.
+On Ubuntu: `sudo apt-get install inkscape`. On Windows install Inkscape and use its
+`bin/inkscape.com`; the normal install location is detected automatically.
+Otherwise set `EAS_VISUAL_INKSCAPE` to the executable's absolute path.
 
-已验证 Windows、Python 3.12.7、Inkscape 1.4.2。Python 包要求 3.12+；其他 OS/Python 版本未作同等验收。
-运行依赖：Pydantic、Typer、lxml、Pillow、filelock、tinycss2。
-测试依赖：pytest、pytest-cov、Ruff。Inkscape 是独立安装的外部 CLI。
-
-使用交付 ZIP 解压出的项目目录；当前没有发布 GitHub 远端。
-例如解压到 `D:\Codes\eas-hmi` 后：
-
-```powershell
-Set-Location "D:\Codes\eas-hmi"
+```sh
+git clone https://github.com/FelixVollerei/eas-hmi.git
+cd eas-hmi
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\eas-hmi.exe --help
+# Linux/macOS: source .venv/bin/activate
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
+python -m pip install -e '.[dev,mcp]'
+python scripts/demo_visual.py --output build/my-demo
 ```
 
-[requirements-tested.txt](requirements-tested.txt) 记录最终干净环境的确切依赖版本。
-希望使用同一组版本时，在 pip install 后加 `-c requirements-tested.txt`。
+Use a fresh venv. The Python distribution is now `eas-visual`; it includes the original
+`eas_hmi` package and retains `eas-hmi`. Do not install the older `eas-hmi` distribution
+alongside it. The repository keeps its existing GitHub URL and history.
 
-本机默认发现 `C:\Program Files\Inkscape\bin\inkscape.com`。其他安装位置可设置：
+For a quick CLI edit using the bundled original room artwork:
 
-```powershell
-$env:EAS_HMI_INKSCAPE = "C:\Program Files\Inkscape\bin\inkscape.com"
+```sh
+eas-visual init examples/visual/assets/room-input.png -o room.eas
+eas-visual promote room.eas --label bed --bbox '[48,72,128,192]'
+eas-visual move room.eas --object bed --dx 164 --dy 0 --donor '[350,160,390,200]'
+eas-visual diff room.eas --json
+eas-visual render room.eas -o result.png
+eas-visual undo room.eas
+eas-visual redo room.eas
+eas-visual replay room.eas
 ```
 
-Inkscape 用于 PNG/BMP 栅格化和单节点真实绘图边界裁剪；没有后端时相关命令返回明确错误。
+Outputs must be new paths. `--bbox` uses exclusive right/bottom edges. JSON is the default
+stdout format; `--json` is an explicit alias, not a switch from an undocumented text mode.
+An operation returns `ok`, its revision, output hash and validation. Failed operations return
+structured error codes and do not advance the scene. See [CLI / Agent contract](docs/AGENT-INTEGRATION.md).
 
-也提供构建并验证过的 wheel。在解压目录内可创建仅运行环境：
+## What works in v0.1
 
-```powershell
-python -m venv .venv-wheel
-$easWheel = Get-ChildItem -Path ".\build\stage6\*\dist\eas_hmi-*.whl" | Select-Object -Last 1
-.\.venv-wheel\Scripts\python.exe -m pip install $easWheel.FullName
-.\.venv-wheel\Scripts\eas-hmi.exe --help
-.\.venv-wheel\Scripts\python.exe scripts\demo_agent_workflow.py
+- Immutable original input and pixel-faithful baseline after explicit color reduction.
+- Lazy semantic promotion with a bbox, polygon or binary mask from a person or Agent.
+- Integer object move, preserving its pixels; donor or bounded external background repair.
+- Constrained local generative patch exchange, with explicit dimension normalization.
+- Actual EAS SVG raster validation: untouched MAE, changed pixels and maximum error.
+- Undo, redo, reset, checkout and replay of persisted immutable history.
+- Python API, JSON CLI and six-tool stdio MCP interface.
+- Three reproducible demos and an inspectable [example project](examples/visual).
+
+Baseline geometry is pure vector paths representing quantized pixels. It is a faithful visual
+base, **not a claim of elegant, compact or semantically complete SVG**. Edits append local SVG
+layers over it. Pixel exactness is checked at original resolution; resizing the SVG in another
+renderer can produce different pixels.
+
+## A model may change context. The scene need not.
+
+![Real model patch, accepted support and final result](docs/visual/generative-provider.png)
+
+The bundled smile demo reuses a **real cached model result from the previous POC**.
+It makes no fresh model call and needs no API key. The model returned the wrong dimensions
+and changed about **98.84%** of context pixels outside the mouth mask. After explicit patch
+normalization and strict composition, the final scene has **0 changed pixels outside the
+predeclared support** (mouth plus a 3 px blending margin, 0.3685% of the canvas).
+
+The smile is visible; slight skin/seam differences remain. The mask was Agent-assisted.
+This validates containment, not arbitrary instruction following or automatic segmentation.
+Artwork: **Kasuga, Wikipe-tan, CC BY-SA 3.0**; the images above are adapted crops/composites.
+[Source and derivative license](THIRD_PARTY.md).
+
+For your own model, prepare a local request:
+
+```sh
+eas-visual prepare scene.eas --object mouth --instruction 'Make her smile gently.' --margin 3
+# Give only the returned context_file and mask_file to your host image model.
+# Save the returned patch and its actual metadata (provider required; unknown model/seed = null).
+eas-visual edit scene.eas --object mouth --provider external-patch --request REQUEST_ID --patch returned.png --metadata provider.json
 ```
 
-wheel 包含 CLI 和运行模块；演示脚本、文档与示例随完整源码 ZIP 提供。
+A size mismatch is refused unless you explicitly add `--normalize`. There is no silent mask
+expansion or full-image provider fallback. `external-patch` is a file-exchange adapter for real
+models called by the host; EAS does not make a hidden API call. `--provider mock` deterministically
+paints blue for pipeline tests and does not understand natural-language instructions.
 
-## 一键 Demo
+## Reversible by design
 
-```powershell
-.\.venv\Scripts\python.exe scripts\demo_agent_workflow.py
+![Two edits followed by undo, undo and redo](docs/visual/undo.png)
+
+Every successful promotion/edit keeps its provenance, support mask, patch and verified result.
+Undo/redo change the current revision pointer. New edits after undo preserve older branches for
+`checkout EDIT_ID`. `reset` returns to the baseline; `replay` re-renders saved scenes without calling
+any model. The immutable original is never an export target.
+
+## Agent access
+
+```sh
+python -m pip install -e '.[mcp]'
+eas-visual-mcp
 ```
 
-每次建立新的 `build/demo/<run-id>/`，从独立生成的初始工程开始，不复用上次编辑状态。
-输出已存在时拒绝覆盖，也可以用 `--output <新目录>` 指定位置。
-演示脚本包含验收断言，不应使用 `python -O` 禁用断言。
+The stdio server exposes `inspect_visual`, `create_visual_project`, `promote_object`,
+`edit_visual`, `render_visual` and `undo_visual`. Set `EAS_VISUAL_ROOTS` to the workspace paths
+it may access. Codex, DeepSeek Harness and other clients can share this tool layer; their SDKs
+are not Core dependencies. A real MCP session is covered by tests; individual host integrations
+are not yet certified. [Configuration and provider workflow](docs/AGENT-INTEGRATION.md).
 
-| 步骤 | 实际工作 |
-|---|---|
-| A | query/inspect/context 找到 cooling 的 20 个 pump cards、3 个缺 fault card、CHWP_07 的点位及关联 |
-| B | 根据 point registry 修复 3 个 card 的 required fault binding，strict validate 0 issues |
-| C | batch 统一 width=164，distribute 成为 10 列×2 行，横纵 gap=20 |
-| D | 三页无改动 sync 不提交；模拟 tagged 节点位移与文字修改，以 human 事务同步 |
-| E | 分别保存 B/C/D 的 JSON 语义 diff 和可读 diff |
-| F | undo 人工改动，canonical hash 恢复，绑定与布局修复保留 |
-| G | 三页 semantic SVG、660 条 binding 的 CSV/JSON、SVG/PNG/BMP 素材和页面 PNG |
+## Experimental / known limitations
 
-运行目录还有完整 `project/`、`final-model.json`、75 次 CLI 的 command/stdout/stderr/exit_code、events、
-错误样本校验、各步证据和 report.json。主工程有 20 pumps、20 valves、30 sensors、12 UPS、8 generators；
-所有数据均为合成，`--` 数值是设计态占位。见 [Demo 详细说明](docs/stage-5-demo.md)。
+- Manual or Agent-assisted localization is supported. Automatic segmentation is not included.
+- Donor repair handles simple repeated backgrounds; hidden content is estimated. Generative
+  repair uses the same external patch boundary and can still have poor seams.
+- `repair=none` is an explicit duplicate-placement diagnostic and warns that source pixels remain.
+- Move can cover residual content. Overlap with another promoted object is refused; general
+  multi-object ownership/occlusion is unsolved. Swap/scale/rotate are not in v0.1.
+- Maximum 4M pixels; support limited to 25% of the scene; integer translation and 0–8 px margin.
+  Provider context must be a crop smaller than the canvas. There is no outside-change override.
+- Every operation audits all referenced history assets. Read cost and saved render caches grow
+  with history; this release does not claim large-history performance is solved.
+- Cross-renderer fidelity, complex continuous transforms and universal style preservation are
+  not promised. A differing renderer causes validation failure, not a relaxed threshold.
+- Previous EAS-HMI tests on this Windows machine recorded intermittent native access violations.
+  That investigation remains open; v0.1 does not claim to fix native dependencies or machine issues.
 
-单独生成输入：
+No GUI, cloud service, new image model or Photoshop replacement is included.
 
-```powershell
-.\.venv\Scripts\python.exe scripts\generate_demo.py
+## Validation and project internals
+
+```sh
+python -m pytest tests/test_visual.py -q
 ```
 
-输入写入 `examples/datacenter/`，包括初始模型、统计和 5 个独立错误样本。
-主模型保留 3 个 card 级 missing required bindings；严重错误放在 broken fixtures，不写入正常 Demo。
+Tests cover immutable assets, adversarial context contamination, undo/redo/reopen/replay,
+wrong-size/alpha patches, corrupt inactive history, invalid masks/targets, failed commits,
+CLI JSON and a real MCP stdio session. See [release report](V0.1-RELEASE-REPORT.md) for actual
+run results and release blockers, [format](docs/VISUAL-FORMAT.md) for integrity/transaction details,
+and [demo evidence](docs/visual/demo-metrics.json) for measured values.
 
-## 常用 CLI
+Code: `src/eas_visual/`. Existing EAS SVG core: `src/eas_hmi/` (unchanged by this release).
+The original engineering-sidecar documentation is [archived here](docs/README-EAS-HMI.md).
+[Roadmap](ROADMAP.md) · [Future scope](FUTURE.md) · [Changelog](CHANGELOG.md)
 
-全局参数放在子命令前。读取默认 JSON，支持 `--json`；diff 默认可读文本；watch 输出 JSONL。
-
-```powershell
-$eas = ".\.venv\Scripts\eas-hmi.exe"
-$project = ".\build\manual-demo"
-& $eas --project $project init --from-model .\examples\datacenter\model.json
-& $eas --project $project query --page cooling --kind equipment_card --equipment-type pump --missing-binding fault --json
-& $eas --project $project context CHWP_CARD_07 --depth 2 --limit 40 --json
-& $eas --project $project bind CHWP_CARD_07 fault CHWP_07_FAULT
-& $eas --project $project batch set --page cooling --kind equipment_card --equipment-type pump --property width --value 164
-& $eas --project $project render
-& $eas --project $project validate --strict --json
-& $eas --project $project diff --json
-& $eas --project $project export-manifest
-& $eas --project $project export-assets --id CHWP_CARD_07 --formats svg,png,bmp --width 328 --height 188
-```
-
-以上手工示例仅修复一台 pump；剩余两台缺项会使 strict validate 返回错误，完整修复由 A–G 演示执行。
-其他命令包括 set/move/resize/unbind/align/distribute/import-svg/sync-from-svg/history/undo/events/watch。
-[完整 CLI 约定](docs/stage-4-cli.md) 和各命令 `--help` 提供参数及限制。
-
-支持 `--actor agent|human|system`、`--expected-revision N`、`--auto-render`。
-退出码：0 成功；2 输入/校验/不支持的操作；3 revision 冲突；4 IO/锁/存储错误。
-默认 WARNING 不阻断事务；strict validation 可把缺 required binding 升为 ERROR。
-
-## 测试与最终复验
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest --cov=eas_hmi --cov-fail-under=85 --cov-report=term-missing
-.\.venv\Scripts\python.exe scripts\verify_stage6.py
-```
-
-最终脚本复制源码并新建两个环境：editable 环境运行全量测试和 A–G，wheel 环境重新安装并再跑 A–G。
-核对实际模块路径、pip check、全部命令 help、最终语义状态一致性，然后做性能测量。
-成功证据由 `build/stage6/latest.json` 指向；完整流程见 [最终复验说明](docs/final-verification-guide.md)。
-
-query/strict validate 各测 20 次，另各 3 次预热；包括每次进程启动、项目读取和 JSON 输出，
-在 672 节点/390 点位/8 条提交的工程上按 p95≤1s 判断。数值与原始样本见最终报告和 performance.json。
-
-测试包括引用/模板/几何、单与批量事务、7 个真实进程崩溃边界、并发写入、恢复、diff/undo、
-9 kind、SVG import/sync/opaque、确定性、清单、真实 Inkscape 资产导出与大工程 Demo。
-不通过排除核心代码降低覆盖率分母。
-
-## 支持边界
-
-- `This is an experimental engineering sidecar.` 它不是 Plant SCADA 的替代品、AVEVA 自动化工具、
-  通用 HMI 格式、新 MCP 类协议或 GUI Agent。
-- 9 种 node 均可渲染。status/data/card 是设计态，不执行 binding expression，不读取实时工业数据。
-- 坐标是局部 affine frame。align/distribute 要求同页面、同 parent、未旋转；connection 保留显式几何，不自动布线。
-- context 深度最多 3，数量最多 200；大 payload、图片和任意 metadata 被省略并标记。完整属性通过 inspect 获取。
-- 自有 EAS format=1 SVG 可恢复身份/几何/绑定引用。SVG 不包含整个 registry；未知 point tag/datatype、
-  template required roles、expression 和任意 metadata 不能作为备份自动恢复，导入会给出明确占位/警告。
-- 普通 SVG 优先 opaque 保留。共享样式/合成/引用可能保留为整体；外部资源、活动内容、复杂 CSS 和
-  无法解释的语义改动明确拒绝，源文件保持不变。只支持规定的 SVG 子集，不承诺任意 Inkscape 操作。
-- 单行文字及规定的 transform/visibility/frame 修改可同步；skew、reflection、重排、复杂富文本等不支持。
-- PNG 保留 alpha，BMP 合成不透明背景。width/height 同时提供，支持 1–16384 像素；导出不修改工程。
-- Undo 撤销最新事务且产生新的审计；连续 undo 会撤销上一次 undo，不是多步回退栈。
-- 已验证进程中断恢复；没有声称硬件断电、任意长历史或所有平台的等价保证。
-
-不包含 SCADA 工程写入、OPC UA/PLC 控制、生产部署、远程设备操作、AutoCAD/Office 集成、
-MCP server、VS Code 扩展、Web 编辑器或模型服务集成。
-
-## 完整交付
-
-```powershell
-.\.venv\Scripts\python.exe scripts\package_project.py --stage 6
-```
-
-ZIP 包含完整 src/tests/scripts/schemas/examples/docs、README、pyproject、实测依赖版本，
-阶段 2–6 的成功验收证据、最终模型、原始提交链及 wheel。包内清单逐文件 SHA-256，外部另附 ZIP SHA-256。
-不含 `.venv`、隔离环境/checkout 副本、缓存、被取代的运行和旧 ZIP。
-验收命令中的绝对路径是原机记录；在解压目录重新运行会生成该目录的新证据。
-报告链接为项目内相对路径，可直接查看归档中的结果。
-
-- [最终验收报告](docs/stage-6-report.md)
-- [最终逐项验收表](docs/final-acceptance.md)
-- [原始要求](docs/requirements-original.txt)
-- [六阶段计划](docs/implementation-plan.md) 与 [需求映射](docs/acceptance-matrix.md)
-- 历史报告：[阶段 1](docs/stage-1-report.md)、[阶段 2](docs/stage-2-report.md)、[阶段 3](docs/stage-3-report.md)、[阶段 4](docs/stage-4-report.md)、[阶段 5](docs/stage-5-report.md)
-
-## 交付后复核
-
-长历史读放大、INFO、命令/help 与文档更正见 [复核报告](docs/review-corrections.md)。`history --audit` 显式校验全部历史提交，普通历史读取复用经过摘要校验的投影；空事件读取只校验当前提交。所有命令默认 JSON（diff 默认文本、watch 为 JSONL）；`--json` 是保留的显式兼容标志，通过公共包装器统一处理。
-
-未来手动比较使用 [实验题目与流程](docs/agent-comparison/protocol.md)、[CLI 组 prompt](docs/agent-comparison/prompt-semantic.md)、[视觉组 prompt](docs/agent-comparison/prompt-visual.md)。本次没有执行 Agent 对照实验。原生崩溃仍未归因，见 [诊断说明](docs/native-crash-diagnostics.md)。
+Code and original synthetic artwork: [MIT](LICENSE). Bundled character artwork and its derivatives:
+[CC BY-SA 3.0, attribution and change notices](THIRD_PARTY.md).

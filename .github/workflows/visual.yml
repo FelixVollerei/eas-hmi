@@ -1,0 +1,27 @@
+name: EAS Visual release gates
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y inkscape
+      - run: python -m pip install -e '.[dev,mcp]'
+      - run: python -m pytest tests/test_visual.py -q --junitxml=build/visual-tests.xml
+      - run: python scripts/demo_visual.py --output build/visual-demo-ci
+      - run: python -m ruff check --isolated src/eas_visual tests/test_visual.py scripts/demo_visual.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-evidence
+          path: |
+            build/visual-tests.xml
+            build/visual-demo-ci/demo-report.json
+            build/visual-demo-ci/**/comparison.png

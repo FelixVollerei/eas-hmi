@@ -1,0 +1,32 @@
+{
+  "platform": "Windows",
+  "python": "3.12.7",
+  "test_runs": [
+    {
+      "evidence": "visual-full-tests.xml",
+      "tests": "270",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "127.915"
+    },
+    {
+      "evidence": "visual-tests-final.xml",
+      "tests": "26",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "32.568"
+    }
+  ],
+  "wheel_smoke": {
+    "isolated_site_packages": true,
+    "all_three_demos": true,
+    "cli_calls": 14,
+    "seconds": 19.6741716999677,
+    "mcp_tool_count": 6,
+    "legacy_help_exit_code": 0
+  },
+  "native_access_violation_seen_this_release": false,
+  "historical_native_crash_resolved": false
+}

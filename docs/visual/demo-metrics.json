@@ -1,0 +1,138 @@
+{
+  "structural": {
+    "validation": {
+      "untouched_region_mae": 0.0,
+      "untouched_changed_pixels": 0,
+      "untouched_changed_pixel_ratio": 0.0,
+      "untouched_max_absolute_difference": 0,
+      "editable_mask_pixels": 19200,
+      "editable_mask_ratio": 0.125,
+      "output_hash": "e1be155e77da6e8c5d36a32ea488763b35ba78e6a5d12219f96e87682afd118c"
+    },
+    "object_appearance_mae": 0.0,
+    "repair_quality": "flat synthetic floor: exact; not a complex-inpainting claim"
+  },
+  "undo": {
+    "stages": [
+      {
+        "operation": "edit 1",
+        "revision": "0002-1a700e33",
+        "hash": "e1be155e77da6e8c5d36a32ea488763b35ba78e6a5d12219f96e87682afd118c"
+      },
+      {
+        "operation": "edit 2",
+        "revision": "0003-e725810b",
+        "hash": "61a70439f47ecf664660e0cce9c4844f8c762f58b4dc8307b96174b6a824e616"
+      },
+      {
+        "operation": "undo -> edit 1",
+        "revision": "0002-1a700e33",
+        "hash": "e1be155e77da6e8c5d36a32ea488763b35ba78e6a5d12219f96e87682afd118c"
+      },
+      {
+        "operation": "undo -> baseline pixels",
+        "revision": "0001-c69fda9b",
+        "hash": "bd4360069a645c69ecf9b2a4ddb5f9bca60bc576957ac1c25bdb8709810bacdc"
+      },
+      {
+        "operation": "redo -> edit 1",
+        "revision": "0002-1a700e33",
+        "hash": "e1be155e77da6e8c5d36a32ea488763b35ba78e6a5d12219f96e87682afd118c"
+      }
+    ],
+    "all_expected_hashes_match": true,
+    "replay": {
+      "revisions": [
+        {
+          "revision": "0000-baseline",
+          "output_hash": "bd4360069a645c69ecf9b2a4ddb5f9bca60bc576957ac1c25bdb8709810bacdc",
+          "matches": true
+        },
+        {
+          "revision": "0001-c69fda9b",
+          "output_hash": "bd4360069a645c69ecf9b2a4ddb5f9bca60bc576957ac1c25bdb8709810bacdc",
+          "matches": true
+        },
+        {
+          "revision": "0002-1a700e33",
+          "output_hash": "e1be155e77da6e8c5d36a32ea488763b35ba78e6a5d12219f96e87682afd118c",
+          "matches": true
+        },
+        {
+          "revision": "0003-e725810b",
+          "output_hash": "61a70439f47ecf664660e0cce9c4844f8c762f58b4dc8307b96174b6a824e616",
+          "matches": true
+        }
+      ],
+      "provider_calls": 0,
+      "manifest_changed": false
+    }
+  },
+  "generative": {
+    "validation": {
+      "untouched_region_mae": 0.0,
+      "untouched_changed_pixels": 0,
+      "untouched_changed_pixel_ratio": 0.0,
+      "untouched_max_absolute_difference": 0,
+      "editable_mask_pixels": 8589,
+      "editable_mask_ratio": 0.0036846846846846845,
+      "output_hash": "943895b3493fb525b552ccd2bceed2ca9df90dfd541931012b75610764bf902c"
+    },
+    "provider": {
+      "adapter": "external-patch",
+      "context_outside_mask_before_composite": {
+        "editable_mask_pixels": 7281,
+        "editable_mask_ratio": 0.039917763157894734,
+        "output_hash": "8b1c7708f8de38361dafa46fa6f1e3492fe27e438de3e7a035995081faa2c428",
+        "untouched_changed_pixel_ratio": 0.9883679098213215,
+        "untouched_changed_pixels": 173082,
+        "untouched_max_absolute_difference": 136,
+        "untouched_region_mae": 4.886387732532354
+      },
+      "normalized": true,
+      "normalized_output": {
+        "path": "patches/7b2c5c3d2cc78d0716f0b6ca009063c26f78cfe9aa6f1384fd9f65913211dc8e.png",
+        "sha256": "7b2c5c3d2cc78d0716f0b6ca009063c26f78cfe9aa6f1384fd9f65913211dc8e"
+      },
+      "normalized_size": [
+        480,
+        380
+      ],
+      "raw_output": {
+        "path": "patches/3bbf4f9e514448dfb89cabbc8f7373b25003d1e4463817d88abc7425e1f11f69.png",
+        "sha256": "3bbf4f9e514448dfb89cabbc8f7373b25003d1e4463817d88abc7425e1f11f69"
+      },
+      "raw_size": [
+        1409,
+        1116
+      ],
+      "request": {
+        "path": "patches/ab1f905a1a4fed08101954a3e81dd782f5597a3252f1a039ab119830ef158dfc.json",
+        "sha256": "ab1f905a1a4fed08101954a3e81dd782f5597a3252f1a039ab119830ef158dfc"
+      },
+      "returned": {
+        "calls": 1,
+        "full_image_sent": false,
+        "input": "mouth-context.png",
+        "input_dimensions": [
+          480,
+          380
+        ],
+        "input_sha256": "5ba3edf852f4b9997104835ca0843a9f2d1a83f0160ba9335b9c4366249bbfc4",
+        "kind": "real cropped image edit",
+        "model": "not exposed in tool result",
+        "prompt": "Use case: precise-object-edit. Edit ONLY this cropped face patch from a simple anime illustration. Change the currently large open mouth to a small gentle CLOSED-MOUTH SMILE (a subtle curved dark line with no teeth and no open mouth). Remove the original open mouth interior and replace it with the surrounding flat pale skin, keeping the existing chin outline. Preserve exact framing, pose, character identity, eyes, hair, blush, ear, clothing, flat limited colors and dark hand-drawn line style. This is a crop, do not expand it into a full picture, no new background, no text. Keep all non-mouth pixels and feature locations as close as possible. Return exactly the same crop and composition; requested dimensions 480 by 380 pixels. The allowed mouth region in this crop is approximately x=120..233, y=215..300. The rest is context only.",
+        "provider": "image_gen built-in tool",
+        "repeatability": "saved output replay only; stochastic rerun not guaranteed",
+        "seed": null,
+        "source_artwork": "Kasuga / Wikipe-tan / CC BY-SA 3.0"
+      }
+    },
+    "new_model_calls": 0,
+    "kind": "real previous model crop, saved-output replay",
+    "quality": "gentle smile visible; slight skin/seam differences remain; manual mask"
+  },
+  "cli_calls": 14,
+  "cli_seconds": 19.980666099960217,
+  "core_modified": false
+}

@@ -1,0 +1,17 @@
+{
+  "provider": "image_gen built-in tool",
+  "model": "not exposed in tool result",
+  "kind": "real cropped image edit",
+  "input": "mouth-context.png",
+  "input_sha256": "5ba3edf852f4b9997104835ca0843a9f2d1a83f0160ba9335b9c4366249bbfc4",
+  "input_dimensions": [
+    480,
+    380
+  ],
+  "prompt": "Use case: precise-object-edit. Edit ONLY this cropped face patch from a simple anime illustration. Change the currently large open mouth to a small gentle CLOSED-MOUTH SMILE (a subtle curved dark line with no teeth and no open mouth). Remove the original open mouth interior and replace it with the surrounding flat pale skin, keeping the existing chin outline. Preserve exact framing, pose, character identity, eyes, hair, blush, ear, clothing, flat limited colors and dark hand-drawn line style. This is a crop, do not expand it into a full picture, no new background, no text. Keep all non-mouth pixels and feature locations as close as possible. Return exactly the same crop and composition; requested dimensions 480 by 380 pixels. The allowed mouth region in this crop is approximately x=120..233, y=215..300. The rest is context only.",
+  "calls": 1,
+  "full_image_sent": false,
+  "seed": null,
+  "repeatability": "saved output replay only; stochastic rerun not guaranteed",
+  "source_artwork": "Kasuga / Wikipe-tan / CC BY-SA 3.0"
+}
