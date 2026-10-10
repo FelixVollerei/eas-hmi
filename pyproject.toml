@@ -3,13 +3,13 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "eas-visual"
-version = "0.1.0"
-description = "Give your agent editable vision: reversible, verified local image edits"
+name = "eafs"
+version = "0.2.0"
+description = "Structured file editing for agents"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
-dependencies = ["pydantic>=2.10,<3", "typer>=0.15,<1", "lxml>=5,<7", "Pillow>=10,<13", "filelock>=3.16,<4", "tinycss2>=1.4,<2", "numpy>=2,<3"]
+dependencies = ["pydantic>=2.10,<3", "typer>=0.15,<1", "lxml>=5,<7", "Pillow>=10,<13", "filelock>=3.16,<4", "tinycss2>=1.4,<2", "numpy>=2,<3", "ruamel.yaml>=0.19.1,<0.20", "tomlkit>=0.13.2,<1", "pyarrow>=17,<26", "ezdxf>=1.3,<2", "nbtlib>=2.0.4,<3"]
 
 [project.urls]
 Repository = "https://github.com/FelixVollerei/eas-hmi"
@@ -21,17 +21,20 @@ mcp = ["mcp>=1.28,<2"]
 
 [project.scripts]
 eas-hmi = "eas_hmi.cli:app"
-eas-visual = "eas_visual.cli:main"
-eas-visual-mcp = "eas_visual.mcp_server:main"
+sfe-files = "sfe_files.cli:main"
+eafs-mcp = "sfe_files.mcp_server:main"
+eafs-minecraft-structure = "sfe_files.minecraft_structure_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["sfe_files*", "eas_hmi*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.coverage.run]
-source = ["eas_hmi"]
+source = ["eas_hmi", "sfe_files"]
 
 [tool.coverage.report]
 show_missing = true

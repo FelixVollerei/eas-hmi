@@ -1,0 +1,33 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "vcf",
+  "base": {
+    "sha256": "d53110b4b45d426e49080d0ff164d0a036dcb5e77a60ce392e5d5e78a210d944"
+  },
+  "steps": [
+    {
+      "op": "set-property",
+      "uid": "urn:uuid:5b30ba4a-8bc5-4a90-a37e-96c34dbaeff1",
+      "name": "EMAIL",
+      "index": 2,
+      "value": "li.support@example.com"
+    },
+    {
+      "op": "set-property",
+      "uid": "urn:uuid:5b30ba4a-8bc5-4a90-a37e-96c34dbaeff1",
+      "name": "ORG",
+      "index": 1,
+      "value": [
+        "EAS",
+        "Field Service"
+      ]
+    },
+    {
+      "op": "add-property",
+      "uid": "urn:uuid:5b30ba4a-8bc5-4a90-a37e-96c34dbaeff1",
+      "name": "TEL",
+      "params": ";VALUE=uri;TYPE=work",
+      "value": "tel:+66-2-555-0100"
+    }
+  ]
+}

@@ -3,3 +3,5 @@
 *.bmp binary
 *.zip binary
 *.whl binary
+# Fixed sample plans bind exact source bytes, including their original line endings.
+examples/sfe/** -text whitespace=cr-at-eol

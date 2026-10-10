@@ -1,0 +1,24 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "toml",
+  "base": {
+    "sha256": "e761862bc8905dffa8f451a59004c23de941c751bce3bcb7f89989a8f5d9d67d"
+  },
+  "steps": [
+    {
+      "op": "set",
+      "pointer": "/server/port",
+      "value": 8081
+    },
+    {
+      "op": "append",
+      "pointer": "/server/peers",
+      "value": "backup"
+    },
+    {
+      "op": "add",
+      "pointer": "/server/enabled",
+      "value": true
+    }
+  ]
+}

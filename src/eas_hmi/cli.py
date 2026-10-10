@@ -10,6 +10,8 @@ from filelock import Timeout
 from pydantic import ValidationError
 from typer.core import TyperGroup
 
+from .agent_protocol import FORMAT, PROTOCOL, apply_steps, parse_plan
+from .agent_protocol import contract as agent_contract
 from .errors import EngineeringError
 from .export.bundle import export_bundle
 from .export.manifest import manifest_files
@@ -219,6 +221,40 @@ def status(
             "points": len(project.points),
         }
     )
+
+
+@app.command("agent-contract")
+@guarded
+def agent_contract_command():
+    """Describe the versioned, data-only edit plan accepted by EAS-HMI."""
+    emit(agent_contract())
+
+
+@app.command("apply-plan")
+@guarded
+def apply_plan(
+    ctx: typer.Context,
+    file: Path,
+    dry_run: bool = typer.Option(False, "--dry-run"),
+):
+    """Preview or atomically commit a sequence of structured edits."""
+    plan = parse_plan(file.read_bytes())
+    expected = plan.base.revision
+    global_expected = ctx.obj["expected_revision"]
+    if global_expected is not None and global_expected != expected:
+        raise EngineeringError("REVISION_CONFLICT", "CLI revision and plan base revision differ")
+    mutate = lambda project: apply_steps(project, plan)
+    if dry_run:
+        result = store(ctx).preview(mutate, expected_revision=expected)
+        emit({**result, "protocol": PROTOCOL, "format": FORMAT, "dry_run": True})
+    else:
+        result = store(ctx).transaction(
+            canonical_json(["apply-plan", plan.model_dump(mode="json")]),
+            mutate,
+            actor(ctx),
+            expected,
+        )
+        finish_write(ctx, {**result, "protocol": PROTOCOL, "format": FORMAT})
 
 
 @app.command()

@@ -1,0 +1,27 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "geojson",
+  "base": {
+    "sha256": "2eff11face6c7ecc37d09b539bdc6daa9b41d4ef46f0c3591aaa20c2ac0a8c88"
+  },
+  "steps": [
+    {
+      "op": "set-property",
+      "id": "pump",
+      "name": "status",
+      "value": "ready"
+    },
+    {
+      "op": "set-point",
+      "id": "pump",
+      "longitude": 100.505,
+      "latitude": 13.705
+    },
+    {
+      "op": "set-property",
+      "index": 3,
+      "name": "reviewed",
+      "value": true
+    }
+  ]
+}

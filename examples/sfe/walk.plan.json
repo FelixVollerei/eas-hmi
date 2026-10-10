@@ -1,0 +1,25 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "gpx",
+  "base": {
+    "sha256": "ce44a5fac60ee0fe49b8eef8731347074da2db5cb7ce7b18227e4dd772a1bf61"
+  },
+  "steps": [
+    {
+      "op": "set-name",
+      "target": "/waypoints/1",
+      "value": "Reviewed pump entrance"
+    },
+    {
+      "op": "set-point",
+      "target": "/routes/1/points/2",
+      "latitude": 13.715,
+      "longitude": 100.515
+    },
+    {
+      "op": "set-time",
+      "target": "/tracks/1/segments/1/points/2",
+      "value": "2026-09-27T09:05:00Z"
+    }
+  ]
+}

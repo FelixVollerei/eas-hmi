@@ -1,0 +1,24 @@
+BEGIN:VCARD
+VERSION:4.0
+UID:urn:uuid:5b30ba4a-8bc5-4a90-a37e-96c34dbaeff1
+FN:李明
+N:李;明;;;
+item1.EMAIL;TYPE=work:li.work@example.com
+item2.EMAIL;TYPE=home:li.home@example.com
+TEL;TYPE=cell:+66-81-555-0110
+ORG:EAS;Operations
+NOTE:现场调试联系人\n通过邮件确认时间
+PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwC
+ AAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=
+REV:20260926T000000Z
+X-SITE:Bangkok
+END:VCARD
+
+BEGIN:VCARD
+VERSION:3.0
+UID:legacy-team-02
+FN:Maintenance desk
+N:Maintenance;Desk;;;
+TEL;TYPE=WORK,VOICE:+66-2-555-0102
+EMAIL;TYPE=INTERNET:maintenance@example.com
+END:VCARD

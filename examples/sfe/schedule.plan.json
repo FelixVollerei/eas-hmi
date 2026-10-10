@@ -1,0 +1,27 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "ics",
+  "base": {
+    "sha256": "a2459c8cd768b67aade3493cc8027a8d8f26dafb6959ba0db95e1ad5114dc5bc"
+  },
+  "steps": [
+    {
+      "op": "set-event-field",
+      "uid": "review-1@example.test",
+      "field": "LOCATION",
+      "value": "Room B"
+    },
+    {
+      "op": "reschedule",
+      "uid": "review-1@example.test",
+      "start": "2026-10-01T03:00:00Z",
+      "end": "2026-10-01T04:00:00Z"
+    },
+    {
+      "op": "set-event-field",
+      "uid": "review-1@example.test",
+      "field": "DESCRIPTION",
+      "value": "Confirm sensor mapping, record alarm checks; share the local report."
+    }
+  ]
+}

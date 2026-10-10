@@ -9,6 +9,7 @@
 - query：本地索引、有限 AND 查询、inspect、局部 context。
 - operations：有限编辑、事务、history、semantic diff、undo。
 - svg：导入、确定性渲染、显式同步；不得直接写工程存储。
+- `eas_hmi.integration`：供同一发行包内 EAFS MCP 与 Visual 使用的声明式跨包入口；仅重导出 owner 模块的对象，工程写入仍由 `Store` 独占。
 - export：清单与资产输出，不修改模型。cli 仅做参数/输出和组合调用。
 - Node ID 全项目唯一；其他实体 ID 各 registry 内唯一。ID 非空、无空白、稳定。
 - XML ID 通过确定性编码生成，与工程 ID 分离。
@@ -132,7 +133,7 @@ CSS解析使用 [tinycss2官方API](https://doc.courtbouillon.org/tinycss2/stabl
 
 ## 阶段 4 补充
 
-完整节点、局部上下文、批量事务、导入、资产与事件的当前行为见 [stage-4-cli.md](stage-4-cli.md)。
+完整节点、局部上下文、批量事务、导入、资产与事件的当前行为见 [stage-4-cli.md](README-EAS-HMI.md)。
 其中：connection 使用显式局部线几何，不自动布线；context 是有上限的投影，精确属性通过 inspect。
 SVG import 不是备份恢复：没有写入 SVG 的 registry/表达式/metadata 不被推测，缺失定义显式占位并警告。
 完整 Canonical 工程以 `.eas` 提交链、HEAD 和可重建 history 为准；项目 ZIP 包含这些实际验收状态。

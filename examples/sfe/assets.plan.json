@@ -1,0 +1,9 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "csv",
+  "base": {"sha256": "8359460d6a05f5aac4f1a5b386db96cd2f2edfdc899a0ef47cde5c6dd387b574"},
+  "steps": [
+    {"op": "set-cell", "key_column": "id", "key": "P-01", "column": "status", "value": "ready"},
+    {"op": "append-row", "key_column": "id", "row": {"id": "T-03", "name": "Tank", "status": "inspection"}}
+  ]
+}

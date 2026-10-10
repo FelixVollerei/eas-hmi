@@ -1,0 +1,5 @@
+{
+  "site": "North Plant",
+  "enabled": false,
+  "alarms": ["high-temperature"]
+}

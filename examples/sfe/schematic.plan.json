@@ -1,0 +1,26 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "svg",
+  "base": {
+    "sha256": "2849afaf9d1206b69641dd40ac78a917d47c6a21c51d9f726c3d32c27b77a142"
+  },
+  "steps": [
+    {
+      "op": "translate",
+      "id": "pump",
+      "dx": 24,
+      "dy": 12
+    },
+    {
+      "op": "set-attribute",
+      "id": "pump-body",
+      "name": "fill",
+      "value": "#16a34a"
+    },
+    {
+      "op": "set-text",
+      "id": "pump-label",
+      "text": "Pump ready"
+    }
+  ]
+}

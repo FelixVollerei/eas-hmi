@@ -1,0 +1,13 @@
+# 车间 HMI 服务：保留运维注释
+apiVersion: "apps/v1"
+kind: Deployment
+metadata:
+  name: "eas-hmi"
+  labels:
+    site: bangkok
+spec:
+  replicas: 1 # 调整实例数量
+  ports:
+    - 8080
+  features:
+    - audit-log

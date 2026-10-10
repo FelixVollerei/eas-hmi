@@ -1,0 +1,26 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "arrow",
+  "base": {
+    "sha256": "7ad705feae340bbd5f1fc9c480d3da83eb8617eb2daecba31262575db8ba756c"
+  },
+  "steps": [
+    {
+      "op": "set-field",
+      "key_column": "id",
+      "key": "P-01",
+      "column": "approved",
+      "value": true
+    },
+    {
+      "op": "append-row",
+      "key_column": "id",
+      "row": {
+        "id": "S-04",
+        "status": "pending",
+        "quantity": 1,
+        "approved": false
+      }
+    }
+  ]
+}

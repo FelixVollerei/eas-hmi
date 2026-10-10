@@ -1,0 +1,2 @@
+{"id":"P-01","name":"Feed pump","status":"pending","inspection":{"approved":false}}
+{ "id": "V-02", "name": "Isolation valve", "status": "ready", "inspection": {"approved": true} }

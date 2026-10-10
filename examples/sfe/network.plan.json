@@ -1,0 +1,36 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "drawio",
+  "base": {
+    "sha256": "288aabacf4e89d777088d43284a039b4cd126875d61a60607b9e12ee8df596c5"
+  },
+  "steps": [
+    {
+      "op": "set-label",
+      "page": 2,
+      "id": "pump",
+      "value": "Pump ready"
+    },
+    {
+      "op": "move",
+      "page": 2,
+      "id": "pump",
+      "x": 70,
+      "y": 100
+    },
+    {
+      "op": "resize",
+      "page": 2,
+      "id": "pump",
+      "width": 120,
+      "height": 60
+    },
+    {
+      "op": "connect",
+      "page": 2,
+      "id": "link",
+      "source": "tank",
+      "target": "pump"
+    }
+  ]
+}

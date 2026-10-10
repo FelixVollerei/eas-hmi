@@ -1,0 +1,27 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "ods",
+  "base": {
+    "sha256": "8c83d3d6dcc210c4de3ea2be0566b2531e76a86a4d75c8209a39e1dc761cdf2c"
+  },
+  "steps": [
+    {
+      "op": "set-cell",
+      "sheet": "Costs",
+      "cell": "B3",
+      "value": 75
+    },
+    {
+      "op": "set-cell",
+      "sheet": "Costs",
+      "cell": "A4",
+      "value": "现场调试"
+    },
+    {
+      "op": "set-formula",
+      "sheet": "Costs",
+      "cell": "C5",
+      "formula": "of:=SUM([.B2:.B4])"
+    }
+  ]
+}

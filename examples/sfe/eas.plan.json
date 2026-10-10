@@ -1,0 +1,12 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "eas-hmi",
+  "base": {
+    "revision": 0,
+    "semantic_hash": "db119b2b29ec29fe75a0afa6f099f6e53835454f9b9ee41400707e9ed702bea3"
+  },
+  "steps": [
+    {"op": "move", "ids": ["CARD_A"], "dx": 10.0, "dy": 5.0},
+    {"op": "set", "ids": ["CARD_A"], "property": "metadata.reviewed", "value": true}
+  ]
+}

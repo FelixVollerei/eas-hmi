@@ -1,0 +1,25 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "docx",
+  "base": {
+    "sha256": "81e8435f91f912073d47470d895dc9dfeb134c9b2c9ad591fb59920053153d9f"
+  },
+  "steps": [
+    {
+      "op": "set-paragraph",
+      "paragraph": 2,
+      "text": "Approved for staging. The team will complete the actions below before deployment."
+    },
+    {
+      "op": "set-table-cell",
+      "table": 1,
+      "row": 2,
+      "column": 3,
+      "text": "Complete"
+    },
+    {
+      "op": "append-paragraph",
+      "text": "Follow-up: verify alarms after the staging deployment."
+    }
+  ]
+}

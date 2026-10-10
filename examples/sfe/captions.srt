@@ -1,0 +1,11 @@
+1
+00:00:01,000 --> 00:00:03,500
+Welcome to the commissioning review.
+
+2
+00:00:04,000 --> 00:00:06,500
+The pump is ready for testing.
+
+3
+00:00:07,000 --> 00:00:09,000
+Record the pressure reading.

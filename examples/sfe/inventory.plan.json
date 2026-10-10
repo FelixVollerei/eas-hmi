@@ -1,0 +1,26 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "parquet",
+  "base": {
+    "sha256": "850c2edae10cc49394974f2b2c7296c0f494d1927c47d1472ec522a7e674b7b2"
+  },
+  "steps": [
+    {
+      "op": "set-field",
+      "key_column": "id",
+      "key": "P-01",
+      "column": "status",
+      "value": "ready"
+    },
+    {
+      "op": "append-row",
+      "key_column": "id",
+      "row": {
+        "id": "S-04",
+        "status": "pending",
+        "quantity": 1,
+        "approved": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "id": "pump", "properties": {"name": "Feed pump", "status": "pending"}, "geometry": {"type": "Point", "coordinates": [100.5, 13.7]}},
+    {"type": "Feature", "id": "tank", "properties": {"name": "Storage tank", "status": "ready"}, "geometry": {"type": "Point", "coordinates": [100.52, 13.72]}},
+    {"type": "Feature", "properties": {"name": "Inspection boundary"}, "geometry": {"type": "LineString", "coordinates": [[100.4, 13.6], [100.6, 13.8]]}}
+  ]
+}

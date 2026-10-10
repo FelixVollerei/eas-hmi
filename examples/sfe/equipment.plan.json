@@ -1,0 +1,26 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "sqlite",
+  "base": {
+    "sha256": "e5efefe268b91dbed1736f858049391af7b023ce255d46dff3e676068f2f19d0"
+  },
+  "steps": [
+    {
+      "op": "set-cell",
+      "table": "equipment",
+      "key": "P-01",
+      "column": "status",
+      "value": "ready"
+    },
+    {
+      "op": "append-row",
+      "table": "equipment",
+      "row": {
+        "id": "T-03",
+        "name": "Storage tank",
+        "status": "inspection",
+        "capacity": 80
+      }
+    }
+  ]
+}

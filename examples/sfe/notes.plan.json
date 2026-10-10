@@ -1,0 +1,25 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "odt",
+  "base": {
+    "sha256": "2504177dad47b1a8dafb2ae9c0063812bc225f16ecd19c6550d5ce834a323a5d"
+  },
+  "steps": [
+    {
+      "op": "set-paragraph",
+      "paragraph": 2,
+      "text": "Approved for staging."
+    },
+    {
+      "op": "set-table-cell",
+      "table": "Actions",
+      "row": 2,
+      "column": 2,
+      "text": "Complete"
+    },
+    {
+      "op": "append-paragraph",
+      "text": "Verify alarms after deployment."
+    }
+  ]
+}

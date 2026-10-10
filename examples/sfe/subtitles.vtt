@@ -1,0 +1,23 @@
+WEBVTT Commissioning review
+
+STYLE
+::cue { color: white; background-color: #172033; }
+
+REGION
+id:status
+width:80%
+lines:2
+
+NOTE Keep the equipment labels unchanged.
+
+intro
+00:01.000 --> 00:03.500 align:start
+Welcome to the commissioning review.
+
+pump-check
+00:04.000 --> 00:06.500 region:status align:start
+The pump is ready for testing.
+
+pressure
+00:07.000 --> 00:09.000 align:start
+Record the pressure reading.

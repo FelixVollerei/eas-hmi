@@ -1,0 +1,32 @@
+name: EAFS v0.2 release candidate gates
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  eafs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev,mcp]'
+      - run: python -m pytest -q tests
+      - run: python -m ruff check src/sfe_files src/eas_hmi/agent_protocol.py tests/test_sfe_*.py tests/test_agent_file_protocol.py scripts/demo_sfe.py
+      - run: python -m pip wheel --no-deps --wheel-dir build/eafs-wheels .
+      - run: python -m venv build/eafs-wheel-venv
+      - run: build/eafs-wheel-venv/bin/python -m pip install 'build/eafs-wheels/eafs-0.2.0-py3-none-any.whl[mcp]'
+      - run: |
+          cd build
+          ./eafs-wheel-venv/bin/python -I -c 'import pathlib, sfe_files; assert "site-packages" in str(pathlib.Path(sfe_files.__file__).resolve())'
+      - run: build/eafs-wheel-venv/bin/python scripts/demo_sfe.py --output build/eafs-wheel-demo
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eafs-evidence
+          path: |
+            build/eafs-wheels/*.whl
+            build/eafs-wheel-demo/REPORT.md
+            build/eafs-wheel-demo/results.json

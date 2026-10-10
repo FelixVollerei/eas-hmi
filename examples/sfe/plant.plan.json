@@ -1,0 +1,25 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "kml",
+  "base": {
+    "sha256": "569cf5e23684b92966e9dbc11c6a23cc7223227c8c132b0aed658944bc17efcd"
+  },
+  "steps": [
+    {
+      "op": "set-name",
+      "id": "pump",
+      "value": "Feed pump reviewed"
+    },
+    {
+      "op": "set-description",
+      "id": "pump",
+      "value": "Ready for staging"
+    },
+    {
+      "op": "set-point",
+      "id": "pump",
+      "longitude": 100.505,
+      "latitude": 13.705
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "json",
+  "base": {"sha256": "5bc2c01c09988bd96f742ab7f8228cc29b93d5ed67829cf6153f40c431de6e93"},
+  "steps": [
+    {"op": "set", "pointer": "/enabled", "value": true},
+    {"op": "append", "pointer": "/alarms", "value": "low-pressure"},
+    {"op": "add", "pointer": "/reviewed_by", "value": "agent"}
+  ]
+}

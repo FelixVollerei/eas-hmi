@@ -1,0 +1,9 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "markdown",
+  "base": {"sha256": "52b051d830414415d1d80224ba2ffc66e7be838029df348d6e0246b0e42683f3"},
+  "steps": [
+    {"op": "replace-section", "heading": "Findings", "body": "P-01 is ready. V-02 remains ready."},
+    {"op": "append-section", "heading": "Next action", "level": 2, "body": "Record the inspection result."}
+  ]
+}

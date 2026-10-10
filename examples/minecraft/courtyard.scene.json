@@ -1,0 +1,32 @@
+{
+  "format": "eafs-minecraft-structure/0.1",
+  "origin": [-100, -100],
+  "size": [64, 64],
+  "elements": [
+    {"id":"site","parent":null,"role":"site","block":null,"boxes":[],"overrides":[]},
+    {"id":"ground","parent":"site","role":"terrain","block":"minecraft:grass_block","boxes":[[[0,64,0],[63,64,63]]],"overrides":[]},
+    {"id":"mainhall","parent":"site","role":"building","block":null,"boxes":[],"overrides":[]},
+    {"id":"hall-foundation","parent":"mainhall","role":"foundation","block":"minecraft:stone_bricks","boxes":[[[8,65,5],[55,65,25]]],"overrides":[]},
+    {"id":"hall-floor","parent":"mainhall","role":"floor","block":"minecraft:dark_oak_planks","boxes":[[[9,66,6],[54,66,24]]],"overrides":[]},
+    {"id":"hall-back-wall","parent":"mainhall","role":"wall","block":"minecraft:white_concrete","boxes":[[[9,67,6],[54,72,6]]],"overrides":[]},
+    {"id":"hall-front-wall","parent":"mainhall","role":"wall","block":"minecraft:white_concrete","boxes":[[[9,67,24],[26,72,24]],[[37,67,24],[54,72,24]]],"overrides":[]},
+    {"id":"hall-side-walls","parent":"mainhall","role":"wall","block":"minecraft:white_concrete","boxes":[[[9,67,7],[9,72,23]],[[54,67,7],[54,72,23]]],"overrides":[]},
+    {"id":"hall-front-columns","parent":"mainhall","role":"column","block":"minecraft:red_terracotta","boxes":[[[12,67,25],[12,73,25]],[[22,67,25],[22,73,25]],[[32,67,25],[32,73,25]],[[42,67,25],[42,73,25]],[[52,67,25],[52,73,25]]],"overrides":[]},
+    {"id":"hall-front-beam","parent":"mainhall","role":"beam","block":"minecraft:dark_oak_log","boxes":[[[11,74,25],[53,74,25]]],"overrides":[]},
+    {"id":"hall-door-steps","parent":"mainhall","role":"stair","block":"minecraft:stone_bricks","boxes":[[[27,65,26],[36,65,29]]],"overrides":[]},
+    {"id":"hall-roof","parent":"mainhall","role":"roof","block":"minecraft:deepslate_tiles","boxes":[[[6,75,3],[57,75,5]],[[6,75,26],[57,75,28]],[[6,76,6],[57,76,8]],[[6,76,23],[57,76,25]],[[6,77,9],[57,77,11]],[[6,77,20],[57,77,22]],[[6,78,12],[57,78,14]],[[6,78,17],[57,78,19]],[[6,79,15],[57,79,16]]],"overrides":[]},
+    {"id":"hall-ridge","parent":"mainhall","role":"decoration","block":"minecraft:gold_block","boxes":[[[6,80,15],[57,80,16]]],"overrides":[]},
+    {"id":"court","parent":"site","role":"courtyard","block":null,"boxes":[],"overrides":[]},
+    {"id":"central-path","parent":"court","role":"path","block":"minecraft:stone_bricks","boxes":[[[29,65,30],[34,65,58]]],"overrides":[]},
+    {"id":"pond-bed","parent":"court","role":"water","block":"minecraft:blue_concrete","boxes":[[[5,65,39],[20,65,52]]],"overrides":[]},
+    {"id":"pond-surface","parent":"court","role":"water","block":"minecraft:blue_stained_glass","boxes":[[[6,66,40],[19,66,51]]],"overrides":[]},
+    {"id":"pond-coping","parent":"court","role":"foundation","block":"minecraft:stone_bricks","boxes":[[[5,66,39],[20,66,39]],[[5,66,52],[20,66,52]],[[5,66,40],[5,66,51]],[[20,66,40],[20,66,51]]],"overrides":[]},
+    {"id":"east-tree-trunk","parent":"court","role":"landscape","block":"minecraft:dark_oak_log","boxes":[[[48,65,45],[48,70,45]]],"overrides":[]},
+    {"id":"east-tree-canopy","parent":"court","role":"landscape","block":"minecraft:oak_leaves[distance=7,persistent=true,waterlogged=false]","boxes":[[[46,71,43],[50,72,47]],[[47,73,44],[49,73,46]]],"overrides":[]},
+    {"id":"gate","parent":"site","role":"building","block":null,"boxes":[],"overrides":[]},
+    {"id":"gate-west-pier","parent":"gate","role":"column","block":"minecraft:red_terracotta","boxes":[[[25,65,59],[27,71,61]]],"overrides":[]},
+    {"id":"gate-east-pier","parent":"gate","role":"column","block":"minecraft:red_terracotta","boxes":[[[36,65,59],[38,71,61]]],"overrides":[]},
+    {"id":"gate-lintel","parent":"gate","role":"beam","block":"minecraft:dark_oak_log","boxes":[[[25,72,59],[38,72,61]]],"overrides":[]},
+    {"id":"gate-roof","parent":"gate","role":"roof","block":"minecraft:deepslate_tiles","boxes":[[[23,73,57],[40,73,62]],[[25,74,58],[38,74,61]],[[27,75,59],[36,75,60]]],"overrides":[]}
+  ]
+}

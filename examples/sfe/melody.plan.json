@@ -1,0 +1,45 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "musicxml",
+  "base": {
+    "sha256": "6721b590d65e1cb67d58cc619ec40ef2566805e30846a914922aaf2866320379"
+  },
+  "steps": [
+    {
+      "op": "set-duration",
+      "part": "P1",
+      "measure": "1",
+      "voice": "1",
+      "note": 1,
+      "duration": 4,
+      "type": "quarter"
+    },
+    {
+      "op": "set-duration",
+      "part": "P1",
+      "measure": "1",
+      "voice": "1",
+      "note": 2,
+      "duration": 8,
+      "type": "half"
+    },
+    {
+      "op": "set-pitch",
+      "part": "P1",
+      "measure": "1",
+      "voice": "1",
+      "note": 3,
+      "step": "F",
+      "octave": 4,
+      "alter": 0
+    },
+    {
+      "op": "set-dynamics",
+      "part": "P1",
+      "measure": "1",
+      "voice": "1",
+      "note": 3,
+      "value": 78
+    }
+  ]
+}

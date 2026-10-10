@@ -4,7 +4,7 @@ import hashlib
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from filelock import FileLock
@@ -30,8 +30,14 @@ def atomic_write(path: Path, data: str | bytes):
             f.flush()
             os.fsync(f.fileno())
         os.replace(temp, path)
-    finally:
-        temp.unlink(missing_ok=True)
+    except (OSError, UnicodeError) as exc:
+        # A successful replace consumes temp. Only a failed write needs cleanup;
+        # cleanup must not hide the original publication error.
+        try:
+            temp.unlink(missing_ok=True)
+        except OSError as cleanup:
+            exc.add_note(f"Temporary-file cleanup also failed: {cleanup}")
+        raise
 
 
 def checked(project):
@@ -201,6 +207,43 @@ class Store:
                 return {"ok": True, "committed": False, "revision": before.revision, "changes": []}
             return self._publish(current, before, candidate, actor, command)
 
+    def preview(self, mutate, expected_revision=None):
+        """Evaluate a transaction under the project lock without publishing a commit."""
+        with self.lock():
+            current = self._read_head()
+            self._recover(current)
+            before = Project.model_validate(current["model"])
+            if expected_revision is not None and before.revision != expected_revision:
+                raise EngineeringError(
+                    "REVISION_CONFLICT", f"Expected revision {expected_revision}; found {before.revision}"
+                )
+            candidate = before.model_copy(deep=True)
+            try:
+                replacement = mutate(candidate)
+            except ValidationError as exc:
+                raise EngineeringError(
+                    "VALIDATION_FAILED", "Candidate schema validation failed", str(exc)
+                ) from exc
+            if isinstance(replacement, Project):
+                candidate = replacement
+            if candidate.id != before.id or candidate.revision != before.revision:
+                raise EngineeringError(
+                    "IDENTITY_NOT_EDITABLE", "Project identity and audit revision cannot be directly edited"
+                )
+            candidate, issues = checked(candidate)
+            changes = semantic_diff(before, candidate)
+            return {
+                "ok": True,
+                "committed": False,
+                "revision": before.revision,
+                "would_commit": bool(changes),
+                "next_revision": before.revision + (1 if changes else 0),
+                "hash_before": canonical_hash(before),
+                "hash_after": canonical_hash(candidate),
+                "changes": changes,
+                "validation": issues,
+            }
+
     def _publish(self, current, before, candidate, actor, command):
         candidate, issues = checked(candidate)
         candidate.revision = (before.revision + 1) if before else 0
@@ -210,7 +253,7 @@ class Store:
         keys = [f"{c['object_type']}:{c['object_id']}" for c in changes]
         operation = {
             "transaction_id": transaction_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "actor": actor,
             "command": command,
             "affected_ids": sorted({c["object_id"] for c in changes}),

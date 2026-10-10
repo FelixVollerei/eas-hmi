@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Plant inspection</name>
+    <Style id="ready"><IconStyle><color>ff00aa00</color></IconStyle></Style>
+    <Placemark id="pump"><name>Feed pump</name><description>Pending review</description><styleUrl>#ready</styleUrl><Point><coordinates>100.5000,13.7000,0</coordinates></Point></Placemark>
+    <Placemark id="tank"><name>Tank</name><description>Unchanged</description><Point><coordinates>100.5200,13.7200,0</coordinates></Point></Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,18 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "vtt",
+  "base": {
+    "sha256": "589afbd917e78c861d8131fc80d618fba3362d5ecbe8dede9eac1979287c35a3"
+  },
+  "steps": [
+    {
+      "op": "set-text",
+      "cue": 2,
+      "text": "The pump is ready for commissioning."
+    },
+    {
+      "op": "shift-time",
+      "delta_ms": 250
+    }
+  ]
+}

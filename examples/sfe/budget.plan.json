@@ -1,0 +1,27 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "xlsx",
+  "base": {
+    "sha256": "a80bd07a05acbcad7209daa24152d1f00d959af9515fc42ea66a0727ab498b07"
+  },
+  "steps": [
+    {
+      "op": "set-cell",
+      "sheet": "Budget",
+      "cell": "B5",
+      "value": 1800
+    },
+    {
+      "op": "set-formula",
+      "sheet": "Budget",
+      "cell": "C7",
+      "formula": "=SUM(C5:C6)"
+    },
+    {
+      "op": "set-cell",
+      "sheet": "Budget",
+      "cell": "A5",
+      "value": "HMI controls"
+    }
+  ]
+}

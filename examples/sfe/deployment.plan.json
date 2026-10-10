@@ -1,0 +1,24 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "yaml",
+  "base": {
+    "sha256": "1054e2d46b67929a92f8a71e35ad9a724c1d8a9e251fb2589ef3e207dc949d1b"
+  },
+  "steps": [
+    {
+      "op": "set",
+      "pointer": "/spec/replicas",
+      "value": 3
+    },
+    {
+      "op": "append",
+      "pointer": "/spec/ports",
+      "value": 8443
+    },
+    {
+      "op": "add",
+      "pointer": "/metadata/labels/reviewed",
+      "value": "agent"
+    }
+  ]
+}

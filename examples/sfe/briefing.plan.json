@@ -1,0 +1,29 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "odp",
+  "base": {
+    "sha256": "6bd7ff2e934053709c7f1af36e3105c26c8d96b3275db4a07c845a67a57c75b5"
+  },
+  "steps": [
+    {
+      "op": "set-text",
+      "slide": 1,
+      "object": "status",
+      "text": "Approved for staging"
+    },
+    {
+      "op": "move",
+      "slide": 1,
+      "object": "status",
+      "x": 2.5,
+      "y": 5
+    },
+    {
+      "op": "resize",
+      "slide": 1,
+      "object": "status",
+      "width": 21,
+      "height": 2.5
+    }
+  ]
+}

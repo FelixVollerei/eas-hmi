@@ -1,0 +1,25 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "dxf",
+  "base": {
+    "sha256": "38f6bf2dd157288febe24f5132e6a7b77670ef44131f53eb71c9ae6147b0fae7"
+  },
+  "steps": [
+    {
+      "op": "set-text",
+      "handle": "32",
+      "value": "Pump ready"
+    },
+    {
+      "op": "translate",
+      "handle": "31",
+      "dx": 10,
+      "dy": 5
+    },
+    {
+      "op": "set-layer",
+      "handle": "33",
+      "layer": "REVIEWED"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "kicad_sch",
+  "base": {
+    "sha256": "d99291f84eda223e14f3bc899a03925991c7ce6b4a79377b1a279d3b637de15e"
+  },
+  "steps": [
+    {
+      "op": "set-property",
+      "uuid": "e2b62867-7d5d-4a92-9064-d715d42a6657",
+      "name": "Value",
+      "value": "12k"
+    },
+    {
+      "op": "move-symbol",
+      "uuid": "e2b62867-7d5d-4a92-9064-d715d42a6657",
+      "x": 110,
+      "y": 80
+    }
+  ]
+}

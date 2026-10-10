@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Commissioning melody</work-title></work>
+  <movement-title>Commissioning melody</movement-title>
+  <identification><creator type="composer">EAFS sample</creator></identification>
+  <defaults><scaling><millimeters>7</millimeters><tenths>40</tenths></scaling></defaults>
+  <part-list><score-part id="P1"><part-name>Voice</part-name><part-abbreviation>V</part-abbreviation><score-instrument id="I1"><instrument-name>Voice</instrument-name></score-instrument><midi-instrument id="I1"><midi-channel>1</midi-channel><midi-program>54</midi-program></midi-instrument></score-part></part-list>
+  <part id="P1">
+    <measure number="1"><attributes><divisions>4</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>
+      <note dynamics="80"><pitch><step>C</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type></note>
+      <note dynamics="80"><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+      <note dynamics="80"><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    </measure>
+    <measure number="2">
+      <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+      <note><pitch><step>A</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+      <note><pitch><step>B</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+      <note><pitch><step>C</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    </measure>
+  </part>
+</score-partwise>

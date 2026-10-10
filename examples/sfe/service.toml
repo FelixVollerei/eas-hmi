@@ -1,0 +1,11 @@
+# Deployment configuration: edit values without losing context.
+name = "eas-gateway"
+commissioned = 2026-09-26 # Keep the TOML date type.
+
+[server]
+host = "127.0.0.1"
+port = 8080 # Local HTTP port.
+peers = ["primary"]
+
+[logging]
+level = "info"

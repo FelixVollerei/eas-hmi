@@ -1,0 +1,18 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "srt",
+  "base": {
+    "sha256": "4873b60cc4f07c6673dcd26ee9bc391faf25d8a15f602f2f6e46a3d89e0e3cec"
+  },
+  "steps": [
+    {
+      "op": "set-text",
+      "cue": 2,
+      "text": "The pump is ready for commissioning."
+    },
+    {
+      "op": "shift-time",
+      "delta_ms": 250
+    }
+  ]
+}

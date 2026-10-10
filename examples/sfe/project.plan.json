@@ -1,0 +1,29 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "pptx",
+  "base": {
+    "sha256": "af6baf13ffe0b642cb8e19b96d1bb0afc5f4ee45ac816eaedd423a2ba0990d2c"
+  },
+  "steps": [
+    {
+      "op": "set-text",
+      "slide": 1,
+      "shape_id": 2,
+      "text": "Status: Ready for review"
+    },
+    {
+      "op": "move",
+      "slide": 1,
+      "shape_id": 2,
+      "x": 914400,
+      "y": 2286000
+    },
+    {
+      "op": "resize",
+      "slide": 1,
+      "shape_id": 2,
+      "width": 8229600,
+      "height": 1371600
+    }
+  ]
+}

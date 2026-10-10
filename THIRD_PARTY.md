@@ -24,3 +24,13 @@ is intentional: the demo demonstrates rejecting those context changes during com
 
 Earlier privately downloaded real-estate floorplan images are not included in the public demo assets.
 Runtime libraries and Inkscape retain their own licenses and are installed separately.
+
+## Current EAFS product tree
+
+The original notice above is retained for attribution of earlier EAS Visual commits
+in this repository's Git history. This EAFS product tree does not include those
+Visual image assets, their generated derivatives or private provider results.
+No artwork is copied or relicensed by this export. The current Python code, required
+EAS-HMI engineering implementation and original synthetic examples retain the root
+MIT license and original contributors notice. Dependencies retain their own licenses
+and are installed separately.

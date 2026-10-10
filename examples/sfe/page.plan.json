@@ -1,0 +1,35 @@
+{
+  "protocol": "sfe/0.1",
+  "format": "html",
+  "base": {
+    "sha256": "891c2f428095bd943598ece47470b153c8b5c1a0f6d5b1e812d8af4dfd3cd0bf"
+  },
+  "steps": [
+    {
+      "op": "set-text",
+      "id": "status",
+      "text": "Ready for review"
+    },
+    {
+      "op": "set-attribute",
+      "id": "status",
+      "name": "class",
+      "value": "ready"
+    },
+    {
+      "op": "remove-attribute",
+      "id": "status",
+      "name": "title"
+    },
+    {
+      "op": "append-element",
+      "parent_id": "actions",
+      "tag": "p",
+      "id": "follow-up",
+      "text": "Verify alarms after staging.",
+      "attributes": {
+        "class": "note"
+      }
+    }
+  ]
+}
